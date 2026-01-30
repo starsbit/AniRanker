@@ -31,7 +31,7 @@
   display: grid;
   grid-template-columns: 1fr auto 1fr;
   gap: 2rem;
-  align-items: center;
+  align-items: start;
   margin-bottom: 2rem;
 
   @media (max-width: 768px) {
@@ -47,7 +47,9 @@
 .anime-card {
   cursor: pointer;
   transition: all 0.3s ease;
-  min-height: 400px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
 
   &:hover {
     transform: translateY(-4px);
@@ -61,17 +63,19 @@
 
   mat-card-content {
     padding: 1rem;
+    flex-shrink: 0;
   }
 }
 
 .anime-image-container {
   width: 100%;
-  aspect-ratio: 225 / 320;
+  height: 80%;
   overflow: hidden;
   background-color: rgba(0, 0, 0, 0.04);
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
 }
 
 .anime-image {
@@ -101,10 +105,16 @@
   font-weight: 500;
   margin: 0;
   line-height: 1.4;
-  min-height: 3rem;
+  height: 4.2rem;
   display: flex;
   align-items: center;
   justify-content: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  word-break: break-word;
 }
 
 .versus {
@@ -113,6 +123,9 @@
   color: rgba(0, 0, 0, 0.38);
   text-align: center;
   user-select: none;
+  display: flex;
+  align-items: center;
+  min-height: 450px;
 }
 
 .actions {

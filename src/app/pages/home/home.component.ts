@@ -1,11 +1,14 @@
-import { ChangeDetectionStrategy, Component, inject, signal, computed } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal, computed, OnInit, effect } from '@angular/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatButtonModule } from '@angular/material/button';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { FileUploadComponent } from '../../components/file-upload/file-upload.component';
 import { AnimeComparisonComponent } from '../../components/anime-comparison/anime-comparison.component';
 import { RankingResultsComponent } from '../../components/ranking-results/ranking-results.component';
 import { MalParserService } from '../../services/mal-parser.service';
 import { JikanService } from '../../services/jikan.service';
 import { RankingService } from '../../services/ranking.service';
+import { StorageService } from '../../services/storage.service';
 import { Anime } from '../../models/anime.model';
 
 type ViewState = 'upload' | 'loading' | 'comparing' | 'results';
@@ -17,25 +20,54 @@ type ViewState = 'upload' | 'loading' | 'comparing' | 'results';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     MatProgressSpinnerModule,
+    MatButtonModule,
+    MatSnackBarModule,
     FileUploadComponent,
     AnimeComparisonComponent,
     RankingResultsComponent
   ]
 })
-export class HomeComponent {
+export class HomeComponent implements OnInit {
   private malParser = inject(MalParserService);
   private jikan = inject(JikanService);
   private ranking = inject(RankingService);
+  private storage = inject(StorageService);
+  private snackBar = inject(MatSnackBar);
 
   viewState = signal<ViewState>('upload');
   originalXml = signal<string>('');
   listType = signal<'anime' | 'manga'>('anime');
   rankedAnime = signal<Anime[]>([]);
   errorMessage = signal<string>('');
+  hasStoredProgress = signal<boolean>(false);
 
   comparisonState = this.ranking.comparisonState;
   progress = this.ranking.progress;
   imageCache = this.jikan.imageCache;
+
+  constructor() {
+    effect(() => {
+      const state = this.viewState();
+      if (state === 'comparing' || state === 'results') {
+        this.saveProgress();
+      }
+    });
+
+    effect(() => {
+      const compState = this.comparisonState();
+      if (compState.comparisonsDone > 0 && this.viewState() === 'comparing') {
+        this.saveProgress();
+      }
+    });
+  }
+
+  ngOnInit(): void {
+    const stored = this.storage.loadProgress();
+    if (stored) {
+      this.hasStoredProgress.set(true);
+      this.restoreProgress();
+    }
+  }
 
   leftAnime = computed(() => {
     const anime = this.comparisonState().currentPair?.[0];
@@ -133,15 +165,70 @@ export class HomeComponent {
     link.download = filename;
     link.click();
     URL.revokeObjectURL(url);
+
+    this.storage.clearProgress();
+    this.snackBar.open('Ranking exported successfully!', 'Close', {
+      duration: 3000
+    });
   }
 
   onReset(): void {
     this.ranking.reset();
     this.jikan.clearCache();
+    this.storage.clearProgress();
     this.originalXml.set('');
     this.listType.set('anime');
     this.rankedAnime.set([]);
     this.errorMessage.set('');
+    this.hasStoredProgress.set(false);
     this.viewState.set('upload');
+  }
+
+  private saveProgress(): void {
+    const state = this.viewState();
+    if (state === 'comparing' || state === 'results') {
+      this.storage.saveProgress({
+        animeList: this.ranking.getAnimeList(),
+        originalXml: this.originalXml(),
+        listType: this.listType(),
+        comparisonState: this.comparisonState(),
+        viewState: state,
+        rankedAnime: state === 'results' ? this.rankedAnime() : undefined,
+        timestamp: Date.now()
+      });
+    }
+  }
+
+  private restoreProgress(): void {
+    const stored = this.storage.loadProgress();
+    if (!stored) return;
+
+    try {
+      this.viewState.set('loading');
+      this.originalXml.set(stored.originalXml);
+      this.listType.set(stored.listType);
+
+      this.ranking.restoreState(stored.animeList, stored.comparisonState);
+
+      if (stored.viewState === 'results' && stored.rankedAnime) {
+        this.rankedAnime.set(stored.rankedAnime);
+        this.viewState.set('results');
+      } else {
+        const currentPair = this.comparisonState().currentPair;
+        if (currentPair) {
+          const priorityIds = [currentPair[0].id, currentPair[1].id];
+          this.jikan.loadImagesForList(stored.animeList, stored.listType, priorityIds);
+        }
+        this.viewState.set('comparing');
+      }
+
+      this.snackBar.open('Progress restored successfully', 'Close', {
+        duration: 3000
+      });
+    } catch (error) {
+      this.errorMessage.set('Failed to restore progress');
+      this.storage.clearProgress();
+      this.viewState.set('upload');
+    }
   }
 }

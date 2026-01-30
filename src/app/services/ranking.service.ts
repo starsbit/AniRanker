@@ -216,4 +216,13 @@ export class RankingService {
   getAnimeList(): Anime[] {
     return this.animeList();
   }
+
+  restoreState(animeList: Anime[], comparisonState: ComparisonState): void {
+    this.animeList.set(animeList);
+    this.comparisonState.set(comparisonState);
+
+    this.matches = this.generateMergeSortMatches(animeList.length);
+    this.shuffledIndices = this.shuffleArray([...Array(animeList.length).keys()]);
+    this.currentMatchIndex = comparisonState.comparisonsDone;
+  }
 }

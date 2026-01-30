@@ -55,9 +55,18 @@
         type="button"
       >
         <mat-icon>download</mat-icon>
-        Export to MAL XML
+        <p class="hint">
+          Export to MAL XML
+        <a
+          href="https://myanimelist.net/import.php"
+          target="_blank"
+          rel="noopener"
+        >
+          MyAnimeList
+        </a>
+      </p>
       </button>
-
+      
       <button
         mat-stroked-button
         (click)="onReset()"

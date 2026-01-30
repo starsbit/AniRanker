@@ -24,7 +24,7 @@ export class JikanService {
   private cacheData = signal<Map<number, string>>(new Map());
   private requestQueue: Array<{ id: number; priority: boolean; type: 'anime' | 'manga' }> = [];
   private isProcessing = false;
-  private readonly RATE_LIMIT_DELAY = 500;
+  private readonly RATE_LIMIT_DELAY = 400;
   private readonly API_BASE = 'https://api.jikan.moe/v4';
 
   loadingProgress = signal(0);
@@ -109,7 +109,7 @@ export class JikanService {
         this.http.get<JikanResponse>(`${this.API_BASE}/${type}/${id}`)
       );
 
-      return response?.data?.images?.jpg?.image_url;
+      return response?.data?.images?.jpg?.large_image_url;
     } catch (error) {
       return undefined;
     }

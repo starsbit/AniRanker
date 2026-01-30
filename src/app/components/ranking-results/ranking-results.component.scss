@@ -106,3 +106,19 @@
     }
   }
 }
+
+.hint {
+  font-size: 0.875rem;
+  color: rgba(0, 0, 0, 0.54);
+  margin: 0;
+
+  a {
+    color: #3f51b5;
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}
+
