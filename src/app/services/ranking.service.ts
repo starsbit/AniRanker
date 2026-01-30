@@ -225,4 +225,50 @@ export class RankingService {
     this.shuffledIndices = this.shuffleArray([...Array(animeList.length).keys()]);
     this.currentMatchIndex = comparisonState.comparisonsDone;
   }
+
+  /**
+   * Get upcoming candidates for preloading images
+   * Returns anime that are likely to be compared soon
+   */
+  getUpcomingCandidates(count: number): Anime[] {
+    const list = this.animeList();
+    if (list.length === 0) return [];
+
+    const candidates: Anime[] = [];
+    const startIndex = this.currentMatchIndex;
+
+    // Get candidates from upcoming matches
+    for (let i = startIndex; i < Math.min(startIndex + count * 2, this.matches.length); i++) {
+      const match = this.matches[i];
+      const leftIdx = this.shuffledIndices[match.left];
+      const rightIdx = this.shuffledIndices[match.right];
+      
+      if (leftIdx !== undefined) {
+        const left = list[leftIdx];
+        if (left && !candidates.find(a => a.id === left.id)) {
+          candidates.push(left);
+        }
+      }
+      
+      if (rightIdx !== undefined) {
+        const right = list[rightIdx];
+        if (right && !candidates.find(a => a.id === right.id)) {
+          candidates.push(right);
+        }
+      }
+
+      if (candidates.length >= count) break;
+    }
+
+    // If we don't have enough from upcoming matches, add from least compared
+    if (candidates.length < count) {
+      const sortedByComparisons = [...list]
+        .filter(a => !candidates.find(c => c.id === a.id))
+        .sort((a, b) => a.comparisons - b.comparisons);
+      
+      candidates.push(...sortedByComparisons.slice(0, count - candidates.length));
+    }
+
+    return candidates.slice(0, count);
+  }
 }

@@ -40,6 +40,7 @@ export class HomeComponent implements OnInit {
   rankedAnime = signal<Anime[]>([]);
   errorMessage = signal<string>('');
   hasStoredProgress = signal<boolean>(false);
+  rateLimitMessage = signal<string>('');
 
   comparisonState = this.ranking.comparisonState;
   progress = this.ranking.progress;
@@ -57,6 +58,15 @@ export class HomeComponent implements OnInit {
       const compState = this.comparisonState();
       if (compState.comparisonsDone > 0 && this.viewState() === 'comparing') {
         this.saveProgress();
+      }
+    });
+
+    // Watch for rate limit messages
+    effect(() => {
+      const message = this.jikan.rateLimitStatus();
+      if (message?.message) {
+        this.rateLimitMessage.set(message.message);
+        this.showRateLimitNotification(message.message);
       }
     });
   }
@@ -93,6 +103,7 @@ export class HomeComponent implements OnInit {
     try {
       this.viewState.set('loading');
       this.errorMessage.set('');
+      this.rateLimitMessage.set('');
 
       const { anime, originalXml, type } = await this.malParser.loadFromFile(file);
 
@@ -106,10 +117,10 @@ export class HomeComponent implements OnInit {
       this.listType.set(type);
       this.ranking.initializeRanking(anime);
 
+      // Only fetch images for the current comparison pair (lazy loading!)
       const currentPair = this.comparisonState().currentPair;
       if (currentPair) {
-        const priorityIds = [currentPair[0].id, currentPair[1].id];
-        this.jikan.loadImagesForList(anime, type, priorityIds);
+        await this.loadImagesForCurrentPair(currentPair, type);
       }
 
       this.viewState.set('comparing');
@@ -121,7 +132,7 @@ export class HomeComponent implements OnInit {
     }
   }
 
-  onAnimeSelected(winner: Anime): void {
+  async onAnimeSelected(winner: Anime): Promise<void> {
     const currentPair = this.comparisonState().currentPair;
     if (!currentPair) return;
 
@@ -130,15 +141,23 @@ export class HomeComponent implements OnInit {
 
     const newPair = this.comparisonState().currentPair;
     const type = this.listType();
+    
     if (newPair) {
-      this.jikan.fetchImage(newPair[0].id, type, true);
-      this.jikan.fetchImage(newPair[1].id, type, true);
+      // Load images for the new comparison pair
+      await this.loadImagesForCurrentPair(newPair, type);
+      
+      // Preload images for likely next candidates (background loading)
+      this.preloadNextCandidates(type);
     }
 
     if (this.comparisonState().isComplete) {
       this.viewState.set('loading');
       const ranked = this.ranking.calculateFinalRatings();
       const cache = this.imageCache();
+      
+      // For results, try to load any missing images
+      await this.loadMissingResultImages(ranked, type);
+      
       const rankedWithImages = ranked.map(item => ({
         ...item,
         imageUrl: cache.get(item.id)
@@ -150,6 +169,52 @@ export class HomeComponent implements OnInit {
 
   onComparisonSkipped(): void {
     this.ranking.skipComparison();
+    
+    // Load images for the new pair after skipping
+    const newPair = this.comparisonState().currentPair;
+    const type = this.listType();
+    if (newPair) {
+      this.loadImagesForCurrentPair(newPair, type);
+    }
+  }
+
+  private async loadImagesForCurrentPair(
+    pair: [Anime, Anime], 
+    type: 'anime' | 'manga'
+  ): Promise<void> {
+    const visibleIds = [pair[0].id, pair[1].id];
+    await this.jikan.fetchImagesForVisible(visibleIds, type);
+  }
+
+  private preloadNextCandidates(type: 'anime' | 'manga'): void {
+    // Get a few anime that might be compared next
+    const upcoming = this.ranking.getUpcomingCandidates(4);
+    if (upcoming.length > 0) {
+      // Don't await - let this happen in background
+      this.jikan.preloadNextPair(upcoming.map(a => a.id), type);
+    }
+  }
+
+  private async loadMissingResultImages(
+    ranked: Anime[], 
+    type: 'anime' | 'manga'
+  ): Promise<void> {
+    const cache = this.imageCache();
+    const missingIds = ranked
+      .slice(0, 20) // Only top 20 results
+      .filter(item => !cache.has(item.id))
+      .map(item => item.id);
+    
+    if (missingIds.length > 0) {
+      await this.jikan.fetchImagesForVisible(missingIds, type);
+    }
+  }
+
+  private showRateLimitNotification(message: string): void {
+    this.snackBar.open(message, 'OK', {
+      duration: 5000,
+      panelClass: 'rate-limit-snackbar'
+    });
   }
 
   onExport(): void {
@@ -180,6 +245,7 @@ export class HomeComponent implements OnInit {
     this.listType.set('anime');
     this.rankedAnime.set([]);
     this.errorMessage.set('');
+    this.rateLimitMessage.set('');
     this.hasStoredProgress.set(false);
     this.viewState.set('upload');
   }
@@ -199,7 +265,7 @@ export class HomeComponent implements OnInit {
     }
   }
 
-  private restoreProgress(): void {
+  private async restoreProgress(): Promise<void> {
     const stored = this.storage.loadProgress();
     if (!stored) return;
 
@@ -216,8 +282,8 @@ export class HomeComponent implements OnInit {
       } else {
         const currentPair = this.comparisonState().currentPair;
         if (currentPair) {
-          const priorityIds = [currentPair[0].id, currentPair[1].id];
-          this.jikan.loadImagesForList(stored.animeList, stored.listType, priorityIds);
+          // Only load images for current pair, not all
+          await this.loadImagesForCurrentPair(currentPair, stored.listType);
         }
         this.viewState.set('comparing');
       }
