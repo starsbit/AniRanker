@@ -61,7 +61,6 @@ export class HomeComponent implements OnInit {
       }
     });
 
-    // Watch for rate limit messages
     effect(() => {
       const message = this.jikan.rateLimitStatus();
       if (message?.message) {

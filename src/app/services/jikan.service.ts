@@ -121,13 +121,12 @@ export class JikanService {
     let completed = 0;
 
     while (this.requestQueue.length > 0) {
-      // Check if we're rate limited
       const rateLimit = this.rateLimitInfo();
       if (rateLimit?.isRateLimited) {
         const waitTime = rateLimit.retryAfter;
         console.log(`Rate limited. Waiting ${waitTime}ms before retry...`);
         await this.delay(waitTime);
-        this.rateLimitInfo.set(null); // Clear rate limit after waiting
+        this.rateLimitInfo.set(null);
         continue;
       }
 
