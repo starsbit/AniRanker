@@ -1,0 +1,78 @@
+<div class="ranker-container" *ngIf="!state.isComplete && state.currentPair">
+  <div class="progress-section">
+    <div class="progress-info">
+      <span>Progress: {{ state.comparisonsDone }} / {{ state.totalComparisons }}</span>
+      <span class="percentage">{{ progressPercentage }}%</span>
+    </div>
+    <mat-progress-bar mode="determinate" [value]="progressPercentage"></mat-progress-bar>
+  </div>
+
+  <h2 class="question">Which anime do you prefer?</h2>
+
+  <div class="comparison-cards">
+    <mat-card class="anime-card" (click)="selectWinner(0)">
+      <img mat-card-image
+           [src]="state.currentPair[0].main_picture.medium"
+           [alt]="state.currentPair[0].title">
+      <mat-card-content>
+        <h3>{{ state.currentPair[0].title }}</h3>
+      </mat-card-content>
+      <mat-card-actions>
+        <button mat-raised-button color="primary" class="select-btn">
+          <mat-icon>check_circle</mat-icon>
+          Select
+        </button>
+      </mat-card-actions>
+    </mat-card>
+
+    <div class="vs-divider">
+      <span>VS</span>
+    </div>
+
+    <mat-card class="anime-card" (click)="selectWinner(1)">
+      <img mat-card-image
+           [src]="state.currentPair[1].main_picture.medium"
+           [alt]="state.currentPair[1].title">
+      <mat-card-content>
+        <h3>{{ state.currentPair[1].title }}</h3>
+      </mat-card-content>
+      <mat-card-actions>
+        <button mat-raised-button color="primary" class="select-btn">
+          <mat-icon>check_circle</mat-icon>
+          Select
+        </button>
+      </mat-card-actions>
+    </mat-card>
+  </div>
+
+  <div class="actions">
+    <button mat-button (click)="skip()">
+      <mat-icon>skip_next</mat-icon>
+      Skip
+    </button>
+    <button mat-button color="warn" (click)="abort()">
+      <mat-icon>stop</mat-icon>
+      Stop
+    </button>
+  </div>
+</div>
+
+<div class="complete-container" *ngIf="state.isComplete">
+  <mat-icon class="complete-icon">emoji_events</mat-icon>
+  <h2>Ranking Complete!</h2>
+  <p>You've completed {{ state.comparisonsDone }} comparisons.</p>
+  <button mat-raised-button color="primary" (click)="viewResults()">
+    <mat-icon>visibility</mat-icon>
+    View Results
+  </button>
+</div>
+
+<div class="empty-container" *ngIf="!state.currentPair && !state.isComplete">
+  <mat-icon class="empty-icon">error_outline</mat-icon>
+  <h2>No Anime Loaded</h2>
+  <p>Please import your anime list first.</p>
+  <button mat-raised-button color="primary" routerLink="/import">
+    <mat-icon>upload</mat-icon>
+    Go to Import
+  </button>
+</div>

@@ -1,0 +1,78 @@
+.home-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.hero {
+  text-align: center;
+  padding: 4rem 2rem;
+}
+
+.hero h1 {
+  font-size: 3.5rem;
+  margin-bottom: 0.5rem;
+  font-weight: 300;
+}
+
+.subtitle {
+  font-size: 1.5rem;
+  color: #666;
+  margin-bottom: 1.5rem;
+}
+
+.description {
+  max-width: 600px;
+  margin: 0 auto 2rem;
+  font-size: 1.1rem;
+  line-height: 1.6;
+  color: #555;
+}
+
+.cta-button {
+  font-size: 1.2rem;
+  padding: 0.75rem 2rem;
+}
+
+.cta-button mat-icon {
+  margin-right: 0.5rem;
+}
+
+.features {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+  margin-top: 2rem;
+}
+
+.feature-card {
+  padding: 2rem;
+  text-align: center;
+}
+
+.feature-card mat-icon {
+  font-size: 3rem;
+  width: 3rem;
+  height: 3rem;
+  color: #3f51b5;
+  margin-bottom: 1rem;
+}
+
+.feature-card h3 {
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+}
+
+.feature-card p {
+  color: #666;
+}
+
+@media (max-width: 600px) {
+  .hero h1 {
+    font-size: 2.5rem;
+  }
+
+  .hero .subtitle {
+    font-size: 1.2rem;
+  }
+}

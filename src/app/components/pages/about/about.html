@@ -1,0 +1,82 @@
+<div class="about-container">
+  <h1>About MAL Ranker</h1>
+
+  <mat-card class="section">
+    <mat-card-header>
+      <mat-icon mat-card-avatar>psychology</mat-icon>
+      <mat-card-title>How It Works</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <p>
+        MAL Ranker uses the <strong>Elo rating system</strong>, the same algorithm
+        used in chess rankings and competitive gaming. Instead of asking you to
+        rate anime on a scale, we simply ask: "Which do you prefer?"
+      </p>
+      <p>
+        Through a series of head-to-head comparisons, the algorithm builds a
+        precise ranking of your anime preferences. Each choice updates the ratings
+        dynamically, converging on your true preferences over time.
+      </p>
+    </mat-card-content>
+  </mat-card>
+
+  <mat-card class="section">
+    <mat-card-header>
+      <mat-icon mat-card-avatar>calculate</mat-icon>
+      <mat-card-title>The Algorithm</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <mat-accordion>
+        <mat-expansion-panel>
+          <mat-expansion-panel-header>
+            <mat-panel-title>Elo Rating Formula</mat-panel-title>
+          </mat-expansion-panel-header>
+          <p>
+            Expected score: <code>E = 1 / (1 + 10^((Rb-Ra)/400))</code>
+          </p>
+          <p>
+            Rating update: <code>R' = R + K × (S - E)</code>
+          </p>
+          <p>
+            Where K=32 (sensitivity), S=1 for win, 0 for loss
+          </p>
+        </mat-expansion-panel>
+
+        <mat-expansion-panel>
+          <mat-expansion-panel-header>
+            <mat-panel-title>Normalization</mat-panel-title>
+          </mat-expansion-panel-header>
+          <p>
+            Final ratings are normalized to a 1-10 scale with a mean of 7.0,
+            matching MyAnimeList's rating distribution. This ensures your ratings
+            are compatible with MAL's system while reflecting your true preferences.
+          </p>
+        </mat-expansion-panel>
+
+        <mat-expansion-panel>
+          <mat-expansion-panel-header>
+            <mat-panel-title>Comparison Optimization</mat-panel-title>
+          </mat-expansion-panel-header>
+          <p>
+            We use an adaptive tournament-style selection to minimize comparisons.
+            Target: ~N×log(N) comparisons for N anime, ensuring efficient ranking
+            even for large lists.
+          </p>
+        </mat-expansion-panel>
+      </mat-accordion>
+    </mat-card-content>
+  </mat-card>
+
+  <mat-card class="section">
+    <mat-card-header>
+      <mat-icon mat-card-avatar>privacy_tip</mat-icon>
+      <mat-card-title>Privacy</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <p>
+        All processing happens in your browser. Your anime list is never uploaded
+        to any server. The application runs entirely client-side.
+      </p>
+    </mat-card-content>
+  </mat-card>
+</div>

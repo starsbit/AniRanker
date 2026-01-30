@@ -1,0 +1,60 @@
+<div class="import-container">
+  <h1>Import Your Anime List</h1>
+
+  <mat-card class="upload-card">
+    <mat-card-content>
+      <div class="upload-area"
+           [class.dragover]="isDragging"
+           (dragover)="onDragOver($event)"
+           (dragleave)="onDragLeave($event)"
+           (drop)="onDrop($event)">
+        <mat-icon class="upload-icon">cloud_upload</mat-icon>
+        <p>Drag and drop your MAL export JSON file here</p>
+        <p class="or-divider">or</p>
+        <input type="file"
+               #fileInput
+               accept=".json"
+               (change)="onFileSelected($event)"
+               hidden>
+        <button mat-raised-button color="primary" (click)="fileInput.click()">
+          <mat-icon>folder_open</mat-icon>
+          Choose File
+        </button>
+      </div>
+
+      <div class="instructions">
+        <h3>How to export from MyAnimeList:</h3>
+        <ol>
+          <li>Go to your MAL profile</li>
+          <li>Click "Export" in the anime list section</li>
+          <li>Download the JSON file</li>
+          <li>Upload it here</li>
+        </ol>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <mat-card class="preview-card" *ngIf="animeList.length > 0">
+    <mat-card-header>
+      <mat-card-title>Loaded {{ animeList.length }} Anime</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <div class="anime-preview">
+        <div class="anime-item" *ngFor="let anime of previewAnime">
+          <img [src]="anime.main_picture.medium" [alt]="anime.title">
+          <span class="title">{{ anime.title }}</span>
+        </div>
+      </div>
+      <mat-progress-bar mode="determinate"
+                       [value]="(animeList.length / totalExpected) * 100">
+      </mat-progress-bar>
+    </mat-card-content>
+    <mat-card-actions>
+      <button mat-button (click)="clearData()">Clear</button>
+      <button mat-raised-button color="primary" (click)="startRanking()">
+        <mat-icon>play_arrow</mat-icon>
+        Start Ranking
+      </button>
+    </mat-card-actions>
+  </mat-card>
+</div>
