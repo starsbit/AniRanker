@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy, input, output, inject } from '@angular/core';
+import { Component, ChangeDetectionStrategy, input, output, inject, computed } from '@angular/core';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
@@ -25,6 +25,8 @@ export class AnimeComparisonComponent {
   animeSelected = output<Anime>();
   comparisonSkipped = output<void>();
   rankingDiscarded = output<void>();
+
+  mediaType = computed(() => this.leftAnime().type);
 
   selectAnime(anime: Anime): void {
     this.animeSelected.emit(anime);
