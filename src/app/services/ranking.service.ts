@@ -234,15 +234,29 @@ export class RankingService {
     animeList.forEach(a => strengths.set(a.id, a.elo || 1.0));
 
     // Iterative algorithm (MM algorithm) - converges to maximum likelihood
-    const maxIterations = 20;
-    const tolerance = 0.0001;
+    const maxIterations = 50; // Increased for better convergence
+    const tolerance = 0.00001; // Tighter tolerance
 
     for (let iter = 0; iter < maxIterations; iter++) {
       const newStrengths = new Map<number, number>();
       let maxChange = 0;
 
       for (const anime of animeList) {
-        const wins = anime.wins || 0;
+        // Calculate wins from comparison matrix (more accurate than anime.wins)
+        let wins = 0;
+        let totalComparisons = 0;
+        
+        for (const opponent of animeList) {
+          if (opponent.id === anime.id) continue;
+          
+          const key = `${anime.id}-${opponent.id}`;
+          const comparison = this.comparisonMatrix.get(key);
+          if (comparison) {
+            wins += comparison.wins;
+            totalComparisons += comparison.total;
+          }
+        }
+        
         let denominator = 0;
 
         // Sum over all opponents
@@ -259,7 +273,11 @@ export class RankingService {
           }
         }
 
-        const newStrength = denominator > 0 ? wins / denominator : 1.0;
+        // If no comparisons yet, keep initial strength
+        const newStrength = totalComparisons > 0 && denominator > 0 
+          ? wins / denominator 
+          : strengths.get(anime.id) || 1.0;
+          
         newStrengths.set(anime.id, Math.max(0.01, newStrength)); // Prevent zero/negative
 
         const change = Math.abs(newStrength - (strengths.get(anime.id) || 1.0));
@@ -300,7 +318,16 @@ export class RankingService {
     if (animeList.length === 0) return [];
 
     // Use log of Bradley-Terry strengths for more stable distribution
-    const logStrengths = animeList.map(a => Math.log(a.elo || 1.0));
+    // Filter out any invalid strengths
+    const validStrengths = animeList
+      .map(a => a.elo)
+      .filter((elo): elo is number => elo !== undefined && elo > 0 && !isNaN(elo));
+    
+    if (validStrengths.length === 0) {
+      return animeList.map(a => ({ ...a, rating: this.TARGET_MEAN }));
+    }
+    
+    const logStrengths = validStrengths.map(s => Math.log(s));
     const meanLog = logStrengths.reduce((a, b) => a + b, 0) / logStrengths.length;
     const variance =
       logStrengths.reduce((sq, n) => sq + Math.pow(n - meanLog, 2), 0) / logStrengths.length;
@@ -308,8 +335,9 @@ export class RankingService {
 
     return animeList
       .map(anime => {
-        const logStrength = Math.log(anime.elo || 1.0);
-        const zScore = (logStrength - meanLog) / stdLog;
+        const elo = anime.elo || 1.0;
+        const logStrength = Math.log(elo);
+        const zScore = stdLog > 0 ? (logStrength - meanLog) / stdLog : 0;
         let rating = this.TARGET_MEAN + zScore * this.TARGET_STDDEV;
         rating = Math.max(1, Math.min(10, Math.round(rating * 10) / 10));
 
