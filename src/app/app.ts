@@ -1,20 +1,13 @@
 import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { slideInAnimation } from './animations/route-animations';
-import { BackgroundComponent } from './components/background/background';
-import { NavigationComponent } from './components/navigation/navigation';
+import { NavigationComponent } from './components/navigation/navigation.component';
 
 @Component({
   selector: 'app-root',
+  imports: [RouterOutlet, NavigationComponent],
   templateUrl: './app.html',
-  styleUrls: ['./app.css'],
-  imports: [
-    RouterOutlet,
-    NavigationComponent,
-    BackgroundComponent,
-  ],
+  styleUrl: './app.scss',
   animations: [slideInAnimation],
 })
-export class App {
-  title = 'mal-ranker';
-}
+export class App {}

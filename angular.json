@@ -6,7 +6,7 @@
   },
   "newProjectRoot": "projects",
   "projects": {
-    "mal-ranker": {
+    "Aniranker": {
       "projectType": "application",
       "schematics": {
         "@schematics/angular:component": {
@@ -30,7 +30,8 @@
               }
             ],
             "styles": [
-              "src/styles.scss"
+              "src/styles.scss",
+              "src/theme.scss"
             ]
           },
           "configurations": {
@@ -61,10 +62,10 @@
           "builder": "@angular/build:dev-server",
           "configurations": {
             "production": {
-              "buildTarget": "mal-ranker:build:production"
+              "buildTarget": "Aniranker:build:production"
             },
             "development": {
-              "buildTarget": "mal-ranker:build:development"
+              "buildTarget": "Aniranker:build:development"
             }
           },
           "defaultConfiguration": "development"
