@@ -1,5 +1,41 @@
-<div class="background-container bg-white flex items-center justify-center">
-  <div class="container flex flex-col justify-center items-center p-8">
-    <!-- Blank home page - ready for custom content -->
+<div class="background-container bg-white flex items-center justify-center min-h-screen">
+  <div class="container flex flex-col justify-center items-center p-8 w-full">
+    @if (errorMessage()) {
+      <div class="error-message">
+        {{ errorMessage() }}
+      </div>
+    }
+
+    @switch (viewState()) {
+      @case ('upload') {
+        <app-file-upload (fileSelected)="onFileSelected($event)" />
+      }
+      @case ('loading') {
+        <div class="loading-container">
+          <mat-spinner></mat-spinner>
+          <p class="loading-text">Processing your anime list...</p>
+        </div>
+      }
+      @case ('comparing') {
+        @if (leftAnime() && rightAnime()) {
+          <app-anime-comparison
+            [leftAnime]="leftAnime()!"
+            [rightAnime]="rightAnime()!"
+            [progress]="progress()"
+            [comparisonsDone]="comparisonState().comparisonsDone"
+            [totalComparisons]="comparisonState().totalComparisons"
+            (animeSelected)="onAnimeSelected($event)"
+            (comparisonSkipped)="onComparisonSkipped()"
+          />
+        }
+      }
+      @case ('results') {
+        <app-ranking-results
+          [rankedAnime]="rankedAnime()"
+          (exportRequested)="onExport()"
+          (resetRequested)="onReset()"
+        />
+      }
+    }
   </div>
 </div>

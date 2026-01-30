@@ -1,0 +1,77 @@
+<div class="comparison-container">
+  <div class="progress-section">
+    <mat-progress-bar mode="determinate" [value]="progress()"></mat-progress-bar>
+    <p class="progress-text">
+      {{ comparisonsDone() }} / {{ totalComparisons() }} comparisons complete
+    </p>
+  </div>
+
+  <h2 class="question">Which anime do you prefer?</h2>
+
+  <div class="anime-cards">
+    <mat-card
+      class="anime-card"
+      (click)="selectAnime(leftAnime())"
+      role="button"
+      tabindex="0"
+      (keydown.enter)="selectAnime(leftAnime())"
+      (keydown.space)="selectAnime(leftAnime())"
+    >
+      <div class="anime-image-container">
+        @if (leftAnime().imageUrl) {
+          <img
+            [src]="leftAnime().imageUrl"
+            [alt]="leftAnime().title"
+            class="anime-image"
+          />
+        } @else {
+          <div class="placeholder-image">
+            <mat-icon>image</mat-icon>
+          </div>
+        }
+      </div>
+      <mat-card-content>
+        <h3 class="anime-title">{{ leftAnime().title }}</h3>
+      </mat-card-content>
+    </mat-card>
+
+    <div class="versus">VS</div>
+
+    <mat-card
+      class="anime-card"
+      (click)="selectAnime(rightAnime())"
+      role="button"
+      tabindex="0"
+      (keydown.enter)="selectAnime(rightAnime())"
+      (keydown.space)="selectAnime(rightAnime())"
+    >
+      <div class="anime-image-container">
+        @if (rightAnime().imageUrl) {
+          <img
+            [src]="rightAnime().imageUrl"
+            [alt]="rightAnime().title"
+            class="anime-image"
+          />
+        } @else {
+          <div class="placeholder-image">
+            <mat-icon>image</mat-icon>
+          </div>
+        }
+      </div>
+      <mat-card-content>
+        <h3 class="anime-title">{{ rightAnime().title }}</h3>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <div class="actions">
+    <button
+      mat-stroked-button
+      (click)="skipComparison()"
+      type="button"
+    >
+      <mat-icon>skip_next</mat-icon>
+      Skip
+    </button>
+  </div>
+</div>

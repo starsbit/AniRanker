@@ -1,0 +1,65 @@
+.upload-card {
+  max-width: 600px;
+  margin: 2rem auto;
+}
+
+.drop-zone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 2rem;
+  border: 2px dashed rgba(0, 0, 0, 0.12);
+  border-radius: 8px;
+  text-align: center;
+  transition: all 0.3s ease;
+
+  &:hover {
+    border-color: rgba(0, 0, 0, 0.24);
+    background-color: rgba(0, 0, 0, 0.02);
+  }
+
+  &.dragging {
+    border-color: #3f51b5;
+    background-color: rgba(63, 81, 181, 0.08);
+    transform: scale(1.02);
+  }
+}
+
+.upload-icon {
+  font-size: 64px;
+  width: 64px;
+  height: 64px;
+  color: rgba(0, 0, 0, 0.38);
+  margin-bottom: 1rem;
+}
+
+h2 {
+  margin: 0 0 1rem 0;
+  font-size: 1.5rem;
+  font-weight: 500;
+}
+
+.instructions {
+  color: rgba(0, 0, 0, 0.6);
+  margin: 0 0 1.5rem 0;
+}
+
+button {
+  margin-bottom: 1rem;
+}
+
+.hint {
+  font-size: 0.875rem;
+  color: rgba(0, 0, 0, 0.54);
+  margin: 0;
+
+  a {
+    color: #3f51b5;
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}

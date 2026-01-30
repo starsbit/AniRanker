@@ -1,4 +1,27 @@
 .background-container {
   min-height: calc(100vh - 64px);
-  background-color: green;
+}
+
+.error-message {
+  background-color: #f44336;
+  color: white;
+  padding: 1rem 1.5rem;
+  border-radius: 4px;
+  margin-bottom: 1rem;
+  text-align: center;
+  max-width: 600px;
+}
+
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 3rem;
+
+  .loading-text {
+    font-size: 1.125rem;
+    color: rgba(0, 0, 0, 0.6);
+    margin: 0;
+  }
 }
