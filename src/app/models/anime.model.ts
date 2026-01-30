@@ -15,6 +15,7 @@ export interface ComparisonState {
   comparisonsDone: number;
   totalComparisons: number;
   isComplete: boolean;
+  comparisonMatrix?: Record<string, { wins: number; total: number }>;
 }
 
 export interface MalAnimeData {

@@ -32,7 +32,8 @@ export class RankingService {
     currentPair: null,
     comparisonsDone: 0,
     totalComparisons: 0,
-    isComplete: false
+    isComplete: false,
+    comparisonMatrix: {}
   });
 
   canUndo = computed(() => this.historyIndex() > 0);
@@ -70,7 +71,8 @@ export class RankingService {
       currentPair: initialPair,
       comparisonsDone: 0,
       totalComparisons: total,
-      isComplete: false
+      isComplete: false,
+      comparisonMatrix: {}
     });
 
     // Initialize history with the starting state
@@ -191,11 +193,18 @@ export class RankingService {
     const isComplete = comparisonsDone >= currentState.totalComparisons;
     const nextPair = isComplete ? null : this.getNextPair();
 
+    // Convert comparison matrix to plain object for serialization
+    const matrixObj: Record<string, { wins: number; total: number }> = {};
+    this.comparisonMatrix.forEach((value, key) => {
+      matrixObj[key] = value;
+    });
+
     this.comparisonState.set({
       currentPair: nextPair,
       comparisonsDone,
       totalComparisons: currentState.totalComparisons,
-      isComplete
+      isComplete,
+      comparisonMatrix: matrixObj
     });
 
     // Clear redo history when a new action is taken
@@ -274,9 +283,15 @@ export class RankingService {
 
   skipComparison(): void {
     const currentState = this.comparisonState();
+    const matrixObj: Record<string, { wins: number; total: number }> = {};
+    this.comparisonMatrix.forEach((value, key) => {
+      matrixObj[key] = value;
+    });
+    
     this.comparisonState.set({
       ...currentState,
-      currentPair: this.getNextPair()
+      currentPair: this.getNextPair(),
+      comparisonMatrix: matrixObj
     });
   }
 
@@ -315,7 +330,8 @@ export class RankingService {
         currentPair: entry.currentPair,
         comparisonsDone: entry.comparisonsDone,
         totalComparisons: currentState.totalComparisons,
-        isComplete: false
+        isComplete: false,
+        comparisonMatrix: currentState.comparisonMatrix
       });
     }
   }
@@ -334,7 +350,8 @@ export class RankingService {
         currentPair: entry.currentPair,
         comparisonsDone: entry.comparisonsDone,
         totalComparisons: currentState.totalComparisons,
-        isComplete
+        isComplete,
+        comparisonMatrix: currentState.comparisonMatrix
       });
     }
   }
@@ -346,11 +363,13 @@ export class RankingService {
     this.currentMatchIndex = 0;
     this.history = [];
     this.historyIndex.set(-1);
+    this.comparisonMatrix.clear();
     this.comparisonState.set({
       currentPair: null,
       comparisonsDone: 0,
       totalComparisons: 0,
-      isComplete: false
+      isComplete: false,
+      comparisonMatrix: {}
     });
   }
 
@@ -361,6 +380,14 @@ export class RankingService {
   restoreState(animeList: Anime[], comparisonState: ComparisonState): void {
     this.animeList.set(animeList);
     this.comparisonState.set(comparisonState);
+
+    // Restore comparison matrix
+    this.comparisonMatrix.clear();
+    if (comparisonState.comparisonMatrix) {
+      Object.entries(comparisonState.comparisonMatrix).forEach(([key, value]) => {
+        this.comparisonMatrix.set(key, value);
+      });
+    }
 
     this.matches = this.generateMergeSortMatches(animeList.length);
     this.shuffledIndices = this.shuffleArray([...Array(animeList.length).keys()]);
