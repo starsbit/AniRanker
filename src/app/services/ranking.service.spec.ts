@@ -311,4 +311,224 @@ describe('RankingService - Bradley-Terry Model', () => {
       expect(strengthAfterWin).toBeGreaterThan(strengthAfterUndo);
     });
   });
+
+  describe('Advanced Bradley-Terry Mathematical Properties', () => {
+    it('should handle circular comparisons correctly (rock-paper-scissors)', () => {
+      const animeList: Anime[] = [
+        { id: 1, title: 'Rock', type: 'anime', elo: 1.0, comparisons: 0 },
+        { id: 2, title: 'Paper', type: 'anime', elo: 1.0, comparisons: 0 },
+        { id: 3, title: 'Scissors', type: 'anime', elo: 1.0, comparisons: 0 }
+      ];
+
+      service.initializeRanking(animeList);
+      const [rock, paper, scissors] = service.getAnimeList();
+      
+      // Rock beats Scissors, Paper beats Rock, Scissors beats Paper
+      for (let i = 0; i < 5; i++) {
+        service.recordComparison(rock, scissors);
+        service.recordComparison(paper, rock);
+        service.recordComparison(scissors, paper);
+      }
+
+      const updated = service.getAnimeList();
+      const strengths = updated.map(a => a.elo);
+      
+      // All should have similar strengths (circular dominance)
+      const maxStrength = Math.max(...strengths);
+      const minStrength = Math.min(...strengths);
+      expect(maxStrength / minStrength).toBeLessThan(2); // Within factor of 2
+    });
+
+    it('should amplify strength differences with more comparisons', () => {
+      const animeList: Anime[] = [
+        { id: 1, title: 'Strong', type: 'anime', elo: 1.0, comparisons: 0 },
+        { id: 2, title: 'Weak', type: 'anime', elo: 1.0, comparisons: 0 }
+      ];
+
+      service.initializeRanking(animeList);
+      const [strong, weak] = service.getAnimeList();
+      
+      // First comparison
+      service.recordComparison(strong, weak);
+      const strengthAfter1 = service.getAnimeList().find(a => a.id === 1)!.elo;
+      
+      // 10 more comparisons
+      for (let i = 0; i < 10; i++) {
+        service.recordComparison(strong, weak);
+      }
+      
+      const strengthAfter11 = service.getAnimeList().find(a => a.id === 1)!.elo;
+      
+      // Strength should increase more with more evidence
+      expect(strengthAfter11).toBeGreaterThan(strengthAfter1);
+    });
+
+    it('should handle dominant champion vs diverse mid-tier correctly', () => {
+      const animeList: Anime[] = [
+        { id: 1, title: 'Champion', type: 'anime', elo: 1.0, comparisons: 0 },
+        { id: 2, title: 'MidA', type: 'anime', elo: 1.0, comparisons: 0 },
+        { id: 3, title: 'MidB', type: 'anime', elo: 1.0, comparisons: 0 },
+        { id: 4, title: 'MidC', type: 'anime', elo: 1.0, comparisons: 0 }
+      ];
+
+      service.initializeRanking(animeList);
+      const [champ, midA, midB, midC] = service.getAnimeList();
+      
+      // Champion beats everyone 5 times
+      for (let i = 0; i < 5; i++) {
+        service.recordComparison(champ, midA);
+        service.recordComparison(champ, midB);
+        service.recordComparison(champ, midC);
+      }
+      
+      // Mid-tier beats each other in circle
+      for (let i = 0; i < 3; i++) {
+        service.recordComparison(midA, midB);
+        service.recordComparison(midB, midC);
+        service.recordComparison(midC, midA);
+      }
+
+      const ratings = service.calculateFinalRatings();
+      const champRating = ratings.find(r => r.id === 1)!;
+      
+      // Champion should be #1
+      expect(ratings[0].id).toBe(1);
+      expect(champRating.rating).toBeGreaterThan(8.0);
+    });
+
+    it('should recover from upsets (unexpected losses)', () => {
+      const animeList: Anime[] = [
+        { id: 1, title: 'Favorite', type: 'anime', elo: 1.0, comparisons: 0 },
+        { id: 2, title: 'Underdog', type: 'anime', elo: 1.0, comparisons: 0 }
+      ];
+
+      service.initializeRanking(animeList);
+      const [favorite, underdog] = service.getAnimeList();
+      
+      // Favorite wins 8 times
+      for (let i = 0; i < 8; i++) {
+        service.recordComparison(favorite, underdog);
+      }
+      
+      const strengthBeforeUpset = service.getAnimeList().find(a => a.id === 1)!.elo;
+      
+      // Underdog wins once (upset!)
+      service.recordComparison(underdog, favorite);
+      
+      const strengthAfterUpset = service.getAnimeList().find(a => a.id === 1)!.elo;
+      
+      // Favorite should still have higher strength
+      expect(strengthAfterUpset).toBeGreaterThan(1.0);
+      expect(strengthBeforeUpset).toBeGreaterThan(strengthAfterUpset);
+    });
+
+    it('should produce consistent ratings across multiple runs', () => {
+      const results: number[][] = [];
+      
+      // Run 3 times
+      for (let run = 0; run < 3; run++) {
+        service.reset();
+        
+        const animeList: Anime[] = [
+          { id: 1, title: 'A', type: 'anime', elo: 1.0, comparisons: 0 },
+          { id: 2, title: 'B', type: 'anime', elo: 1.0, comparisons: 0 },
+          { id: 3, title: 'C', type: 'anime', elo: 1.0, comparisons: 0 }
+        ];
+
+        service.initializeRanking(animeList);
+        const [a, b, c] = service.getAnimeList();
+        
+        // Same comparisons each time
+        for (let i = 0; i < 3; i++) {
+          service.recordComparison(a, b);
+          service.recordComparison(a, c);
+          service.recordComparison(b, c);
+        }
+
+        const ratings = service.calculateFinalRatings();
+        results.push(ratings.map(r => r.rating!));
+      }
+      
+      // All runs should produce same ratings
+      for (let i = 1; i < results.length; i++) {
+        expect(results[i]).toEqual(results[0]);
+      }
+    });
+
+    it('should handle extreme rating disparities without overflow', () => {
+      const animeList: Anime[] = [
+        { id: 1, title: 'GodTier', type: 'anime', elo: 1.0, comparisons: 0 },
+        { id: 2, title: 'Terrible', type: 'anime', elo: 1.0, comparisons: 0 }
+      ];
+
+      service.initializeRanking(animeList);
+      const [god, terrible] = service.getAnimeList();
+      
+      // GodTier wins 50 times
+      for (let i = 0; i < 50; i++) {
+        service.recordComparison(god, terrible);
+      }
+
+      const updated = service.getAnimeList();
+      const godStrength = updated.find(a => a.id === 1)!.elo;
+      const terribleStrength = updated.find(a => a.id === 2)!.elo;
+      
+      // Should not overflow
+      expect(godStrength).not.toBeNaN();
+      expect(terribleStrength).not.toBeNaN();
+      expect(Number.isFinite(godStrength)).toBe(true);
+      expect(Number.isFinite(terribleStrength)).toBe(true);
+      
+      // Rating should still be within bounds
+      const ratings = service.calculateFinalRatings();
+      expect(ratings[0].rating).toBeLessThanOrEqual(10);
+      expect(ratings[1].rating).toBeGreaterThanOrEqual(1);
+    });
+  });
+
+  describe('Comparison Matrix Integrity', () => {
+    it('should maintain correct win/loss totals in matrix', () => {
+      const animeList: Anime[] = [
+        { id: 1, title: 'A', type: 'anime', elo: 1.0, comparisons: 0 },
+        { id: 2, title: 'B', type: 'anime', elo: 1.0, comparisons: 0 }
+      ];
+
+      service.initializeRanking(animeList);
+      const [a, b] = service.getAnimeList();
+      
+      service.recordComparison(a, b);
+      service.recordComparison(a, b);
+      service.recordComparison(b, a); // B wins once
+      
+      const state = service.comparisonState();
+      const matrix = state.comparisonMatrix!;
+      
+      // A vs B: 2 wins for A
+      expect(matrix['1-2'].wins).toBe(2);
+      expect(matrix['1-2'].total).toBe(3);
+      
+      // B vs A: 1 win for B
+      expect(matrix['2-1'].wins).toBe(1);
+      expect(matrix['2-1'].total).toBe(3);
+    });
+
+    it('should preserve matrix after undo/redo', () => {
+      const animeList: Anime[] = [
+        { id: 1, title: 'A', type: 'anime', elo: 1.0, comparisons: 0 },
+        { id: 2, title: 'B', type: 'anime', elo: 1.0, comparisons: 0 }
+      ];
+
+      service.initializeRanking(animeList);
+      const [a, b] = service.getAnimeList();
+      
+      service.recordComparison(a, b);
+      const matrixBefore = service.comparisonState().comparisonMatrix;
+      
+      service.undo();
+      service.redo();
+      
+      const matrixAfter = service.comparisonState().comparisonMatrix;
+      expect(matrixAfter).toEqual(matrixBefore);
+    });
+  });
 });
