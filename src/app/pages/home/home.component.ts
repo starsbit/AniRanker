@@ -177,6 +177,10 @@ export class HomeComponent implements OnInit {
     }
   }
 
+  onRankingDiscarded(): void {
+    this.onReset();
+  }
+
   private async loadImagesForCurrentPair(
     pair: [Anime, Anime], 
     type: 'anime' | 'manga'

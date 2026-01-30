@@ -1,8 +1,9 @@
-import { Component, ChangeDetectionStrategy, input, output } from '@angular/core';
+import { Component, ChangeDetectionStrategy, input, output, inject } from '@angular/core';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatIconModule } from '@angular/material/icon';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { Anime } from '../../models/anime.model';
 
 @Component({
@@ -10,9 +11,11 @@ import { Anime } from '../../models/anime.model';
   templateUrl: './anime-comparison.component.html',
   styleUrl: './anime-comparison.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [MatCardModule, MatButtonModule, MatProgressBarModule, MatIconModule]
+  imports: [MatCardModule, MatButtonModule, MatProgressBarModule, MatIconModule, MatDialogModule]
 })
 export class AnimeComparisonComponent {
+  private dialog = inject(MatDialog);
+
   leftAnime = input.required<Anime>();
   rightAnime = input.required<Anime>();
   progress = input.required<number>();
@@ -21,6 +24,7 @@ export class AnimeComparisonComponent {
 
   animeSelected = output<Anime>();
   comparisonSkipped = output<void>();
+  rankingDiscarded = output<void>();
 
   selectAnime(anime: Anime): void {
     this.animeSelected.emit(anime);
@@ -28,5 +32,13 @@ export class AnimeComparisonComponent {
 
   skipComparison(): void {
     this.comparisonSkipped.emit();
+  }
+
+  async discardRanking(): Promise<void> {
+    const confirmed = confirm('Are you sure you want to discard your current ranking progress? This action cannot be undone.');
+    
+    if (confirmed) {
+      this.rankingDiscarded.emit();
+    }
   }
 }
