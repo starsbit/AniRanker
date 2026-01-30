@@ -42,6 +42,8 @@ export class StorageService {
         return null;
       }
 
+      console.log("Loaded data", data);
+
       return data;
     } catch (error) {
       console.warn('Failed to load progress from localStorage:', error);
