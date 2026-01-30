@@ -83,22 +83,24 @@ export class RankingService {
 
   private generateMergeSortMatches(n: number): Match[] {
     const matches: Match[] = [];
+    const comparisonsPerItem = Math.ceil(Math.log2(n + 1) * 3);
+    const comparisonCounts = new Array(n).fill(0);
 
-    const generate = (left: number, right: number) => {
-      if (right - left <= 1) return;
+    for (let round = 0; round < comparisonsPerItem; round++) {
+      const shuffled = this.shuffleArray([...Array(n).keys()]);
 
-      const mid = Math.floor((left + right) / 2);
-      generate(left, mid);
-      generate(mid, right);
-
-      for (let i = left; i < mid; i++) {
-        for (let j = mid; j < right && j < mid + 2; j++) {
-          matches.push({ left: i, right: j });
-        }
+      const available = shuffled.sort((a, b) => comparisonCounts[a] - comparisonCounts[b]);
+      
+      for (let i = 0; i < available.length - 1; i += 2) {
+        const idx1 = available[i];
+        const idx2 = available[i + 1];
+        
+        matches.push({ left: idx1, right: idx2 });
+        comparisonCounts[idx1]++;
+        comparisonCounts[idx2]++;
       }
-    };
+    }
 
-    generate(0, n);
     return this.shuffleArray(matches);
   }
 
