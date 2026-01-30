@@ -1,23 +1,19 @@
 import { Component } from '@angular/core';
-import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
-import { MatToolbarModule } from '@angular/material/toolbar';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatMenuModule } from '@angular/material/menu';
+import { RouterOutlet } from '@angular/router';
+import { slideInAnimation } from './animations/route-animations';
+import { BackgroundComponent } from './components/background/background';
+import { NavigationComponent } from './components/navigation/navigation';
 
 @Component({
   selector: 'app-root',
+  templateUrl: './app.html',
+  styleUrls: ['./app.css'],
   imports: [
     RouterOutlet,
-    RouterLink,
-    RouterLinkActive,
-    MatToolbarModule,
-    MatButtonModule,
-    MatIconModule,
-    MatMenuModule
+    NavigationComponent,
+    BackgroundComponent,
   ],
-  templateUrl: './app.html',
-  styleUrls: ['./app.css']
+  animations: [slideInAnimation],
 })
 export class App {
   title = 'mal-ranker';

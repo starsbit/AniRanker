@@ -1,46 +1,21 @@
-<div class="contact-container">
-  <h1>Contact</h1>
+<div class="background-container bg-white flex items-center justify-center">
+  <div class="container flex flex-col justify-center items-center p-8">
+    <section class="text-center">
+      <h1 class="mb-4 font-bold text-4xl">Contact</h1>
+      <p class="mb-8 text-lg">You can find me here</p>
 
-  <mat-card class="contact-card">
-    <mat-card-header>
-      <mat-icon mat-card-avatar>code</mat-icon>
-      <mat-card-title>Developer</mat-card-title>
-      <mat-card-subtitle>starsbit</mat-card-subtitle>
-    </mat-card-header>
-    <mat-card-content>
-      <p>
-        MAL Ranker is an open-source project created for the anime community.
-        Feel free to reach out with suggestions, bug reports, or contributions.
-      </p>
-    </mat-card-content>
-    <mat-card-actions>
-      <a mat-button href="https://github.com/starsbit/MAL-Ranker" target="_blank">
-        <mat-icon>open_in_new</mat-icon>
-        GitHub Repository
-      </a>
-      <a mat-button href="https://myanimelist.net/profile/starsbit" target="_blank">
-        <mat-icon>person</mat-icon>
-        MAL Profile
-      </a>
-    </mat-card-actions>
-  </mat-card>
+      <app-social-links></app-social-links>
+    </section>
 
-  <mat-card class="contact-card">
-    <mat-card-header>
-      <mat-icon mat-card-avatar>bug_report</mat-icon>
-      <mat-card-title>Issues & Feedback</mat-card-title>
-    </mat-card-header>
-    <mat-card-content>
-      <p>
-        Found a bug or have a feature request? Please open an issue on GitHub
-        with details about the problem or suggestion.
-      </p>
-    </mat-card-content>
-    <mat-card-actions>
-      <a mat-button href="https://github.com/starsbit/MAL-Ranker/issues" target="_blank">
-        <mat-icon>open_in_new</mat-icon>
-        Open Issue
-      </a>
-    </mat-card-actions>
-  </mat-card>
+    <footer class="text-center mt-8">
+      <img
+        src="assets/images/logos/starsbit-black.png"
+        alt="starsbit logo"
+        width="300"
+        height="100"
+        class="mb-4"
+      />
+      <p class="year">© {{ copyrightYear }} - starsbit</p>
+    </footer>
+  </div>
 </div>

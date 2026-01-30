@@ -1,82 +1,9 @@
-.import-container {
-  max-width: 800px;
-  margin: 0 auto;
-  padding: 2rem;
-}
-
-.import-container h1 {
-  font-size: 2.5rem;
-  font-weight: 300;
-  margin-bottom: 2rem;
-  text-align: center;
-}
-
-.upload-card {
-  margin-bottom: 2rem;
+.background-container {
+  min-height: calc(100vh - 64px);
 }
 
 .upload-area {
-  border: 2px dashed #ccc;
-  border-radius: 8px;
-  padding: 3rem 2rem;
-  text-align: center;
   transition: all 0.3s ease;
-}
-
-.upload-area.dragover {
-  border-color: #3f51b5;
-  background: rgba(63, 81, 181, 0.05);
-}
-
-.upload-area .upload-icon {
-  font-size: 4rem;
-  width: 4rem;
-  height: 4rem;
-  color: #999;
-  margin-bottom: 1rem;
-}
-
-.upload-area p {
-  color: #666;
-  margin-bottom: 0.5rem;
-}
-
-.upload-area .or-divider {
-  margin: 1rem 0;
-  font-size: 0.9rem;
-}
-
-.instructions {
-  margin-top: 2rem;
-  padding-top: 2rem;
-  border-top: 1px solid #eee;
-}
-
-.instructions h3 {
-  margin-bottom: 1rem;
-  font-weight: 500;
-}
-
-.instructions ol {
-  padding-left: 1.5rem;
-}
-
-.instructions ol li {
-  margin-bottom: 0.5rem;
-  color: #555;
-}
-
-.preview-card .anime-preview {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-  gap: 1rem;
-  margin-bottom: 1rem;
-  max-height: 300px;
-  overflow-y: auto;
-}
-
-.anime-item {
-  text-align: center;
 }
 
 .anime-item img {
@@ -87,17 +14,11 @@
   margin-bottom: 0.5rem;
 }
 
-.anime-item .title {
+.anime-item span {
   font-size: 0.85rem;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
   line-height: 1.3;
-}
-
-.preview-card mat-card-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 0.5rem;
 }

@@ -8,6 +8,6 @@ import { MatIconModule } from '@angular/material/icon';
   selector: 'app-home',
   imports: [RouterLink, MatButtonModule, MatCardModule, MatIconModule],
   templateUrl: './home.html',
-  styleUrls: ['./home.css']
+  styleUrls: ['./home.css'],
 })
 export class HomeComponent {}

@@ -1,33 +1,3 @@
-.contact-container {
-  max-width: 800px;
-  margin: 0 auto;
-  padding: 2rem;
-}
-
-.contact-container h1 {
-  font-size: 2.5rem;
-  font-weight: 300;
-  margin-bottom: 2rem;
-  text-align: center;
-}
-
-.contact-card {
-  margin-bottom: 1.5rem;
-}
-
-.contact-card mat-icon[mat-card-avatar] {
-  font-size: 2.5rem;
-  width: 2.5rem;
-  height: 2.5rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.contact-card mat-card-content p {
-  line-height: 1.6;
-}
-
-.contact-card a {
-  text-decoration: none;
+.background-container {
+  min-height: calc(100vh - 64px);
 }

@@ -1,12 +1,12 @@
 import { Component } from '@angular/core';
-import { MatCardModule } from '@angular/material/card';
-import { MatIconModule } from '@angular/material/icon';
-import { MatButtonModule } from '@angular/material/button';
+import { SocialLinksComponent } from '../../social-links/social-links';
 
 @Component({
   selector: 'app-contact',
-  imports: [MatCardModule, MatIconModule, MatButtonModule],
+  imports: [SocialLinksComponent],
   templateUrl: './contact.html',
-  styleUrls: ['./contact.css']
+  styleUrls: ['./contact.css'],
 })
-export class ContactComponent {}
+export class ContactComponent {
+  copyrightYear = new Date().getFullYear();
+}

@@ -1,51 +1,10 @@
-<div class="app-container">
-  <mat-toolbar color="primary" class="navbar">
-    <a routerLink="/" class="brand">
-      <mat-icon>assessment</mat-icon>
-      <span>MAL Ranker</span>
-    </a>
-    <span class="spacer"></span>
-    <nav class="desktop-nav">
-      <a mat-button routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">Home</a>
-      <a mat-button routerLink="/about" routerLinkActive="active">About</a>
-      <a mat-button routerLink="/contact" routerLinkActive="active">Contact</a>
-      <a mat-raised-button color="accent" routerLink="/import">Start Ranking</a>
-    </nav>
-    <button mat-icon-button [matMenuTriggerFor]="menu" class="mobile-menu">
-      <mat-icon>menu</mat-icon>
-    </button>
-  </mat-toolbar>
-
-  <mat-menu #menu="matMenu">
-    <a mat-menu-item routerLink="/">
-      <mat-icon>home</mat-icon>
-      <span>Home</span>
-    </a>
-    <a mat-menu-item routerLink="/about">
-      <mat-icon>info</mat-icon>
-      <span>About</span>
-    </a>
-    <a mat-menu-item routerLink="/contact">
-      <mat-icon>contact_mail</mat-icon>
-      <span>Contact</span>
-    </a>
-    <a mat-menu-item routerLink="/import">
-      <mat-icon>play_arrow</mat-icon>
-      <span>Start Ranking</span>
-    </a>
-  </mat-menu>
-
-  <main class="content">
-    <router-outlet></router-outlet>
-  </main>
-
-  <footer class="footer">
-    <p>&copy; 2025 MAL Ranker. Built with Angular Material.</p>
-    <div class="links">
-      <a href="https://github.com/starsbit/MAL-Ranker" target="_blank">
-        <mat-icon>open_in_new</mat-icon>
-        GitHub
-      </a>
-    </div>
-  </footer>
-</div>
+<app-background class="flex flex-col min-h-screen">
+  <app-navigation></app-navigation>
+  <div
+    [@routeAnimations]="
+      o && o.activatedRouteData && o.activatedRouteData['animation']
+    "
+  >
+    <router-outlet #o="outlet"></router-outlet>
+  </div>
+</app-background>
