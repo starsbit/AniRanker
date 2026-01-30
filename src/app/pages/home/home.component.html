@@ -24,9 +24,13 @@
             [progress]="progress()"
             [comparisonsDone]="comparisonState().comparisonsDone"
             [totalComparisons]="comparisonState().totalComparisons"
+            [canUndo]="canUndo()"
+            [canRedo]="canRedo()"
             (animeSelected)="onAnimeSelected($event)"
             (comparisonSkipped)="onComparisonSkipped()"
             (rankingDiscarded)="onRankingDiscarded()"
+            (undoRequested)="onUndo()"
+            (redoRequested)="onRedo()"
           />
         }
       }

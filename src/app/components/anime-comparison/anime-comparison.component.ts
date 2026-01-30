@@ -21,10 +21,14 @@ export class AnimeComparisonComponent {
   progress = input.required<number>();
   comparisonsDone = input.required<number>();
   totalComparisons = input.required<number>();
+  canUndo = input.required<boolean>();
+  canRedo = input.required<boolean>();
 
   animeSelected = output<Anime>();
   comparisonSkipped = output<void>();
   rankingDiscarded = output<void>();
+  undoRequested = output<void>();
+  redoRequested = output<void>();
 
   mediaType = computed(() => this.leftAnime().type);
 
@@ -34,6 +38,14 @@ export class AnimeComparisonComponent {
 
   skipComparison(): void {
     this.comparisonSkipped.emit();
+  }
+
+  undo(): void {
+    this.undoRequested.emit();
+  }
+
+  redo(): void {
+    this.redoRequested.emit();
   }
 
   async discardRanking(): Promise<void> {

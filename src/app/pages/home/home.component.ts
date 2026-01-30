@@ -45,6 +45,8 @@ export class HomeComponent implements OnInit {
   comparisonState = this.ranking.comparisonState;
   progress = this.ranking.progress;
   imageCache = this.jikan.imageCache;
+  canUndo = this.ranking.canUndo;
+  canRedo = this.ranking.canRedo;
 
   constructor() {
     effect(() => {
@@ -174,6 +176,28 @@ export class HomeComponent implements OnInit {
     const type = this.listType();
     if (newPair) {
       this.loadImagesForCurrentPair(newPair, type);
+    }
+  }
+
+  async onUndo(): Promise<void> {
+    this.ranking.undo();
+    
+    // Load images for the restored pair
+    const currentPair = this.comparisonState().currentPair;
+    const type = this.listType();
+    if (currentPair) {
+      await this.loadImagesForCurrentPair(currentPair, type);
+    }
+  }
+
+  async onRedo(): Promise<void> {
+    this.ranking.redo();
+    
+    // Load images for the restored pair
+    const currentPair = this.comparisonState().currentPair;
+    const type = this.listType();
+    if (currentPair) {
+      await this.loadImagesForCurrentPair(currentPair, type);
     }
   }
 

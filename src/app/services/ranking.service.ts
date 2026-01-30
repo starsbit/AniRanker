@@ -6,6 +6,13 @@ interface Match {
   right: number;
 }
 
+interface HistoryEntry {
+  animeList: Anime[];
+  currentPair: [Anime, Anime] | null;
+  comparisonsDone: number;
+  currentMatchIndex: number;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -19,6 +26,8 @@ export class RankingService {
   private matches: Match[] = [];
   private shuffledIndices: number[] = [];
   private currentMatchIndex = 0;
+  private history: HistoryEntry[] = [];
+  private historyIndex = signal<number>(-1);
 
   comparisonState = signal<ComparisonState>({
     currentPair: null,
@@ -26,6 +35,9 @@ export class RankingService {
     totalComparisons: 0,
     isComplete: false
   });
+
+  canUndo = computed(() => this.historyIndex() > 0);
+  canRedo = computed(() => this.historyIndex() < this.history.length - 1);
 
   progress = computed(() => {
     const state = this.comparisonState();
@@ -50,12 +62,23 @@ export class RankingService {
       Math.ceil(initialized.length * Math.log2(initialized.length + 1) * 2)
     );
 
+    const initialPair = this.getNextPair();
+
     this.comparisonState.set({
-      currentPair: this.getNextPair(),
+      currentPair: initialPair,
       comparisonsDone: 0,
       totalComparisons: total,
       isComplete: false
     });
+
+    // Initialize history with the starting state
+    this.history = [{
+      animeList: [...initialized],
+      currentPair: initialPair,
+      comparisonsDone: 0,
+      currentMatchIndex: this.currentMatchIndex
+    }];
+    this.historyIndex.set(0);
   }
 
   private generateMergeSortMatches(n: number): Match[] {
@@ -158,13 +181,28 @@ export class RankingService {
     const currentState = this.comparisonState();
     const comparisonsDone = currentState.comparisonsDone + 1;
     const isComplete = comparisonsDone >= currentState.totalComparisons;
+    const nextPair = isComplete ? null : this.getNextPair();
 
     this.comparisonState.set({
-      currentPair: isComplete ? null : this.getNextPair(),
+      currentPair: nextPair,
       comparisonsDone,
       totalComparisons: currentState.totalComparisons,
       isComplete
     });
+
+    // Clear redo history when a new action is taken
+    if (this.historyIndex() < this.history.length - 1) {
+      this.history = this.history.slice(0, this.historyIndex() + 1);
+    }
+
+    // Add to history
+    this.history.push({
+      animeList: [...updatedList],
+      currentPair: nextPair,
+      comparisonsDone,
+      currentMatchIndex: this.currentMatchIndex
+    });
+    this.historyIndex.update(i => i + 1);
   }
 
   private calculateExpectedScore(ratingA: number, ratingB: number): number {
@@ -177,6 +215,42 @@ export class RankingService {
       ...currentState,
       currentPair: this.getNextPair()
     });
+  }
+
+  undo(): void {
+    if (this.historyIndex() > 0) {
+      this.historyIndex.update(i => i - 1);
+      const entry = this.history[this.historyIndex()];
+      this.animeList.set([...entry.animeList]);
+      this.currentMatchIndex = entry.currentMatchIndex;
+      
+      const currentState = this.comparisonState();
+      this.comparisonState.set({
+        currentPair: entry.currentPair,
+        comparisonsDone: entry.comparisonsDone,
+        totalComparisons: currentState.totalComparisons,
+        isComplete: false
+      });
+    }
+  }
+
+  redo(): void {
+    if (this.historyIndex() < this.history.length - 1) {
+      this.historyIndex.update(i => i + 1);
+      const entry = this.history[this.historyIndex()];
+      this.animeList.set([...entry.animeList]);
+      this.currentMatchIndex = entry.currentMatchIndex;
+      
+      const currentState = this.comparisonState();
+      const isComplete = entry.comparisonsDone >= currentState.totalComparisons;
+      
+      this.comparisonState.set({
+        currentPair: entry.currentPair,
+        comparisonsDone: entry.comparisonsDone,
+        totalComparisons: currentState.totalComparisons,
+        isComplete
+      });
+    }
   }
 
   calculateFinalRatings(): Anime[] {
@@ -205,6 +279,8 @@ export class RankingService {
     this.matches = [];
     this.shuffledIndices = [];
     this.currentMatchIndex = 0;
+    this.history = [];
+    this.historyIndex.set(-1);
     this.comparisonState.set({
       currentPair: null,
       comparisonsDone: 0,
@@ -224,6 +300,15 @@ export class RankingService {
     this.matches = this.generateMergeSortMatches(animeList.length);
     this.shuffledIndices = this.shuffleArray([...Array(animeList.length).keys()]);
     this.currentMatchIndex = comparisonState.comparisonsDone;
+
+    // Initialize history with the restored state
+    this.history = [{
+      animeList: [...animeList],
+      currentPair: comparisonState.currentPair,
+      comparisonsDone: comparisonState.comparisonsDone,
+      currentMatchIndex: this.currentMatchIndex
+    }];
+    this.historyIndex.set(0);
   }
 
   /**

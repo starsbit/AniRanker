@@ -65,22 +65,46 @@
   </div>
 
   <div class="actions">
-    <button
-      mat-stroked-button
-      (click)="skipComparison()"
-      type="button"
-    >
-      <mat-icon>skip_next</mat-icon>
-      Skip
-    </button>
-    <button
-      mat-stroked-button
-      color="warn"
-      (click)="discardRanking()"
-      type="button"
-    >
-      <mat-icon>delete</mat-icon>
-      Discard
-    </button>
+    <div class="actions-row">
+      <button
+        mat-stroked-button
+        (click)="skipComparison()"
+        type="button"
+      >
+        <mat-icon>skip_next</mat-icon>
+        Skip
+      </button>
+      <button
+        mat-stroked-button
+        color="warn"
+        (click)="discardRanking()"
+        type="button"
+      >
+        <mat-icon>delete</mat-icon>
+        Discard
+      </button>
+    </div>
+    <div class="actions-row">
+      <button
+        mat-stroked-button
+        (click)="undo()"
+        [disabled]="!canUndo()"
+        type="button"
+        aria-label="Undo last comparison"
+      >
+        <mat-icon>undo</mat-icon>
+        Undo
+      </button>
+      <button
+        mat-stroked-button
+        (click)="redo()"
+        [disabled]="!canRedo()"
+        type="button"
+        aria-label="Redo comparison"
+      >
+        <mat-icon>redo</mat-icon>
+        Redo
+      </button>
+    </div>
   </div>
 </div>
