@@ -34,6 +34,24 @@
             <td mat-cell *matCellDef="let anime">{{ anime.title }}</td>
           </ng-container>
 
+          <ng-container matColumnDef="stats">
+            <th mat-header-cell *matHeaderCellDef>Stats</th>
+            <td mat-cell *matCellDef="let anime" class="stats-cell">
+              <span class="win-loss">
+                {{ anime.wins || 0 }}W - {{ anime.losses || 0 }}L
+              </span>
+              <button
+                mat-icon-button
+                [matTooltip]="getTooltip(anime)"
+                matTooltipClass="stats-tooltip"
+                type="button"
+                aria-label="Show calculation details"
+              >
+                <mat-icon>info</mat-icon>
+              </button>
+            </td>
+          </ng-container>
+
           <ng-container matColumnDef="rating">
             <th mat-header-cell *matHeaderCellDef>Rating</th>
             <td mat-cell *matCellDef="let anime" class="rating-cell">

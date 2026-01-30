@@ -4,6 +4,8 @@ export interface Anime {
   imageUrl?: string;
   elo: number;
   comparisons: number;
+  wins?: number;
+  losses?: number;
   rating?: number;
   type: 'anime' | 'manga';
 }

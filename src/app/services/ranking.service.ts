@@ -17,8 +17,6 @@ interface HistoryEntry {
   providedIn: 'root'
 })
 export class RankingService {
-  private readonly K_FACTOR = 32;
-  private readonly INITIAL_ELO = 1500;
   private readonly TARGET_MEAN = 7.0;
   private readonly TARGET_STDDEV = 1.5;
 
@@ -28,6 +26,7 @@ export class RankingService {
   private currentMatchIndex = 0;
   private history: HistoryEntry[] = [];
   private historyIndex = signal<number>(-1);
+  private comparisonMatrix = new Map<string, { wins: number; total: number }>();
 
   comparisonState = signal<ComparisonState>({
     currentPair: null,
@@ -48,11 +47,14 @@ export class RankingService {
   initializeRanking(animeList: Anime[]): void {
     const initialized = animeList.map(a => ({
       ...a,
-      elo: this.INITIAL_ELO,
-      comparisons: 0
+      elo: 1.0, // Bradley-Terry strength parameter starts at 1.0
+      comparisons: 0,
+      wins: 0,
+      losses: 0
     }));
 
     this.animeList.set(initialized);
+    this.comparisonMatrix.clear();
     this.matches = this.generateMergeSortMatches(initialized.length);
     this.shuffledIndices = this.shuffleArray([...Array(initialized.length).keys()]);
     this.currentMatchIndex = 0;
@@ -153,32 +155,36 @@ export class RankingService {
   }
 
   recordComparison(winner: Anime, loser: Anime): void {
+    // Record comparison in matrix
+    const key = `${winner.id}-${loser.id}`;
+    const reverseKey = `${loser.id}-${winner.id}`;
+    
+    const existing = this.comparisonMatrix.get(key) || { wins: 0, total: 0 };
+    this.comparisonMatrix.set(key, { wins: existing.wins + 1, total: existing.total + 1 });
+    
+    const reverseExisting = this.comparisonMatrix.get(reverseKey) || { wins: 0, total: 0 };
+    this.comparisonMatrix.set(reverseKey, { wins: reverseExisting.wins, total: reverseExisting.total + 1 });
+
+    // Update win/loss counts
     const updatedList = this.animeList().map(anime => {
       if (anime.id === winner.id) {
-        const expectedWinner = this.calculateExpectedScore(
-          anime.elo,
-          loser.elo
-        );
         return {
           ...anime,
-          elo: anime.elo + this.K_FACTOR * (1 - expectedWinner),
-          comparisons: anime.comparisons + 1
+          comparisons: anime.comparisons + 1,
+          wins: (anime.wins || 0) + 1
         };
       } else if (anime.id === loser.id) {
-        const expectedLoser = this.calculateExpectedScore(
-          anime.elo,
-          winner.elo
-        );
         return {
           ...anime,
-          elo: anime.elo + this.K_FACTOR * (0 - expectedLoser),
-          comparisons: anime.comparisons + 1
+          comparisons: anime.comparisons + 1,
+          losses: (anime.losses || 0) + 1
         };
       }
       return anime;
     });
 
-    this.animeList.set(updatedList);
+    // Recalculate Bradley-Terry strengths after each comparison
+    this.updateBradleyTerryStrengths(updatedList);
 
     const currentState = this.comparisonState();
     const comparisonsDone = currentState.comparisonsDone + 1;
@@ -199,7 +205,7 @@ export class RankingService {
 
     // Add to history
     this.history.push({
-      animeList: [...updatedList],
+      animeList: [...this.animeList()],
       currentPair: nextPair,
       comparisonsDone,
       currentMatchIndex: this.currentMatchIndex
@@ -207,8 +213,63 @@ export class RankingService {
     this.historyIndex.update(i => i + 1);
   }
 
-  private calculateExpectedScore(ratingA: number, ratingB: number): number {
-    return 1 / (1 + Math.pow(10, (ratingB - ratingA) / 400));
+  /**
+   * Bradley-Terry model: Iteratively updates strength parameters
+   * Formula: strength_i = wins_i / sum_j(total_comparisons_ij / (strength_i + strength_j))
+   */
+  private updateBradleyTerryStrengths(animeList: Anime[]): void {
+    const n = animeList.length;
+    const strengths = new Map<number, number>();
+    
+    // Initialize strengths
+    animeList.forEach(a => strengths.set(a.id, a.elo || 1.0));
+
+    // Iterative algorithm (MM algorithm) - converges to maximum likelihood
+    const maxIterations = 20;
+    const tolerance = 0.0001;
+
+    for (let iter = 0; iter < maxIterations; iter++) {
+      const newStrengths = new Map<number, number>();
+      let maxChange = 0;
+
+      for (const anime of animeList) {
+        const wins = anime.wins || 0;
+        let denominator = 0;
+
+        // Sum over all opponents
+        for (const opponent of animeList) {
+          if (opponent.id === anime.id) continue;
+
+          const key = `${anime.id}-${opponent.id}`;
+          const comparison = this.comparisonMatrix.get(key);
+          
+          if (comparison && comparison.total > 0) {
+            const si = strengths.get(anime.id) || 1.0;
+            const sj = strengths.get(opponent.id) || 1.0;
+            denominator += comparison.total / (si + sj);
+          }
+        }
+
+        const newStrength = denominator > 0 ? wins / denominator : 1.0;
+        newStrengths.set(anime.id, Math.max(0.01, newStrength)); // Prevent zero/negative
+
+        const change = Math.abs(newStrength - (strengths.get(anime.id) || 1.0));
+        maxChange = Math.max(maxChange, change);
+      }
+
+      strengths.clear();
+      newStrengths.forEach((v, k) => strengths.set(k, v));
+
+      if (maxChange < tolerance) break;
+    }
+
+    // Update anime list with new strengths
+    const updated = animeList.map(anime => ({
+      ...anime,
+      elo: strengths.get(anime.id) || 1.0
+    }));
+
+    this.animeList.set(updated);
   }
 
   skipComparison(): void {
@@ -217,6 +278,29 @@ export class RankingService {
       ...currentState,
       currentPair: this.getNextPair()
     });
+  }
+
+  calculateFinalRatings(): Anime[] {
+    const animeList = this.animeList();
+    if (animeList.length === 0) return [];
+
+    // Use log of Bradley-Terry strengths for more stable distribution
+    const logStrengths = animeList.map(a => Math.log(a.elo || 1.0));
+    const meanLog = logStrengths.reduce((a, b) => a + b, 0) / logStrengths.length;
+    const variance =
+      logStrengths.reduce((sq, n) => sq + Math.pow(n - meanLog, 2), 0) / logStrengths.length;
+    const stdLog = Math.sqrt(variance) || 1;
+
+    return animeList
+      .map(anime => {
+        const logStrength = Math.log(anime.elo || 1.0);
+        const zScore = (logStrength - meanLog) / stdLog;
+        let rating = this.TARGET_MEAN + zScore * this.TARGET_STDDEV;
+        rating = Math.max(1, Math.min(10, Math.round(rating * 10) / 10));
+
+        return { ...anime, rating };
+      })
+      .sort((a, b) => (b.rating || 0) - (a.rating || 0));
   }
 
   undo(): void {
@@ -253,27 +337,6 @@ export class RankingService {
         isComplete
       });
     }
-  }
-
-  calculateFinalRatings(): Anime[] {
-    const animeList = this.animeList();
-    if (animeList.length === 0) return [];
-
-    const elos = animeList.map(a => a.elo);
-    const meanElo = elos.reduce((a, b) => a + b, 0) / elos.length;
-    const variance =
-      elos.reduce((sq, n) => sq + Math.pow(n - meanElo, 2), 0) / elos.length;
-    const stdElo = Math.sqrt(variance) || 1;
-
-    return animeList
-      .map(anime => {
-        const zScore = (anime.elo - meanElo) / stdElo;
-        let rating = this.TARGET_MEAN + zScore * this.TARGET_STDDEV;
-        rating = Math.max(1, Math.min(10, Math.round(rating * 10) / 10));
-
-        return { ...anime, rating };
-      })
-      .sort((a, b) => (b.rating || 0) - (a.rating || 0));
   }
 
   reset(): void {
