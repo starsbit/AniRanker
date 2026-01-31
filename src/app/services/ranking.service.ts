@@ -265,7 +265,7 @@ export class RankingService {
     
     // Update Bradley-Terry strengths every 5 comparisons for performance
     // Use untracked to avoid signal dependency issues
-    if (this.comparisonCount % 1 === 0) {
+    if (this.comparisonCount % 5 === 0) {
       untracked(() => {
         this.updateBradleyTerryStrengthsImmediate();
       });
@@ -341,8 +341,8 @@ export class RankingService {
     }
 
     // Iterative algorithm (MM algorithm) - converges to maximum likelihood
-    const maxIterations = 25; // Reduced further for performance
-    const tolerance = 0.0001; // Relaxed for speed
+    const maxIterations = 15; // Reduced further for performance
+    const tolerance = 0.001; // Relaxed for speed
 
     for (let iter = 0; iter < maxIterations; iter++) {
       const newStrengths = new Map<number, number>();
