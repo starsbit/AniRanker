@@ -20,7 +20,7 @@ export class RankingResultsComponent {
   isLiveMode = input<boolean>(false);
   accuracy = input<number>(0);
 
-  exportRequested = output<void>();
+  exportRequested = output<Anime[]>();
   resetRequested = output<void>();
 
   displayedColumns = ['rank', 'image', 'title', 'stats', 'rating'];
@@ -80,7 +80,7 @@ representation of relative quality differences between items.`;
   }
 
   onExport(): void {
-    this.exportRequested.emit();
+    this.exportRequested.emit(this.displayedAnime());
   }
 
   onReset(): void {

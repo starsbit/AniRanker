@@ -32,7 +32,7 @@
               (rankingDiscarded)="onRankingDiscarded()"
               (undoRequested)="onUndo()"
               (redoRequested)="onRedo()"
-              (exportRequested)="onExport()"
+              (exportRequested)="onExport(liveRatingsWithImages())"
             />
           }
           <app-ranking-results
@@ -45,7 +45,7 @@
       @case ('results') {
         <app-ranking-results
           [rankedAnime]="rankedAnime()"
-          (exportRequested)="onExport()"
+          (exportRequested)="onExport($event)"
           (resetRequested)="onReset()"
         />
       }

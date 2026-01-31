@@ -309,10 +309,9 @@ export class HomeComponent implements OnInit {
     });
   }
 
-  onExport(): void {
-    const ranked = this.rankedAnime();
+  onExport(displayedAnime: Anime[]): void {
     const listType = this.listType();
-    const updatedXml = this.malParser.exportToXml(this.originalXml(), ranked, listType);
+    const updatedXml = this.malParser.exportToXml(this.originalXml(), displayedAnime, listType);
 
     const blob = new Blob([updatedXml], { type: 'application/xml' });
     const url = URL.createObjectURL(blob);
