@@ -42,3 +42,17 @@
     margin: 0;
   }
 }
+
+.comparison-with-results {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+  width: 100%;
+  max-width: 1600px;
+  padding: 1rem;
+
+  @media (min-width: 1200px) {
+    grid-template-columns: 1fr 1fr;
+    align-items: start;
+  }
+}

@@ -29,6 +29,7 @@ export class AnimeComparisonComponent {
   rankingDiscarded = output<void>();
   undoRequested = output<void>();
   redoRequested = output<void>();
+  exportRequested = output<void>();
 
   mediaType = computed(() => this.leftAnime().type);
 
@@ -54,5 +55,9 @@ export class AnimeComparisonComponent {
     if (confirmed) {
       this.rankingDiscarded.emit();
     }
+  }
+
+  exportResults(): void {
+    this.exportRequested.emit();
   }
 }

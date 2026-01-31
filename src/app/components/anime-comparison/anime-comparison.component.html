@@ -107,4 +107,25 @@
       </button>
     </div>
   </div>
+
+  <div class="export-section">
+    <button
+        mat-raised-button
+        color="primary"
+        (click)="exportResults()"
+        type="button"
+      >
+        <mat-icon>download</mat-icon>
+          <p class="hint">
+            Export to MAL XML
+          <a
+            href="https://myanimelist.net/import.php"
+            target="_blank"
+            rel="noopener"
+          >
+            MyAnimeList
+          </a>
+        </p>
+      </button>
+  </div>
 </div>

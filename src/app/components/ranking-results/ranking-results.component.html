@@ -1,12 +1,57 @@
 <div class="results-container">
-  <mat-card class="results-card">
+  <mat-card class="results-card" [attr.data-live-mode]="isLiveMode() ? '' : null">
     <mat-card-header>
-      <mat-card-title>Your Ranked Anime List</mat-card-title>
+      <mat-card-title>
+        @if (isLiveMode()) {
+          Current Rankings
+        } @else {
+          Your Ranked Anime List
+        }
+      </mat-card-title>
+      @if (isLiveMode()) {
+        <p class="live-subtitle">Rankings update as you compare</p>
+        <div class="accuracy-indicator">
+          <span class="accuracy-label">Ranking Confidence:</span>
+          <mat-progress-bar 
+            mode="determinate" 
+            [value]="accuracy()"
+            [color]="getAccuracyColor()"
+          ></mat-progress-bar>
+          <button
+            mat-icon-button
+            [matTooltip]="getAccuracyTooltip()"
+            type="button"
+            aria-label="Confidence information"
+          >
+            <mat-icon>info</mat-icon>
+          </button>
+          <span class="accuracy-value">{{ accuracy() }}%</span>
+        </div>
+      }
     </mat-card-header>
 
     <mat-card-content>
+      <div class="rating-mode-toggle">
+        <mat-checkbox
+          [checked]="useDistributional()"
+          (change)="toggleDistributional()"
+          color="primary"
+        >
+          Use distributional ratings (Beta distribution)
+        </mat-checkbox>
+        <button
+          mat-icon-button
+          [matTooltip]="getRatingModeTooltip()"
+          matTooltipClass="rating-mode-tooltip"
+          type="button"
+          aria-label="Rating mode information"
+        >
+          <mat-icon>help_outline</mat-icon>
+        </button>
+      </div>
+
       <div class="table-container">
-        <table mat-table [dataSource]="rankedAnime()" class="results-table">
+        <table mat-table [dataSource]="displayedAnime()" class="results-table">
           <ng-container matColumnDef="rank">
             <th mat-header-cell *matHeaderCellDef>Rank</th>
             <td mat-cell *matCellDef="let anime; let i = index">{{ i + 1 }}</td>
@@ -66,33 +111,16 @@
     </mat-card-content>
 
     <mat-card-actions class="actions">
-      <button
-        mat-raised-button
-        color="primary"
-        (click)="onExport()"
-        type="button"
-      >
-        <mat-icon>download</mat-icon>
-        <p class="hint">
-          Export to MAL XML
-        <a
-          href="https://myanimelist.net/import.php"
-          target="_blank"
-          rel="noopener"
+      @if (!isLiveMode()) {
+        <button
+          mat-stroked-button
+          (click)="onReset()"
+          type="button"
         >
-          MyAnimeList
-        </a>
-      </p>
-      </button>
-      
-      <button
-        mat-stroked-button
-        (click)="onReset()"
-        type="button"
-      >
-        <mat-icon>refresh</mat-icon>
-        Start Over
-      </button>
+          <mat-icon>refresh</mat-icon>
+          Start Over
+        </button>
+      }
     </mat-card-actions>
   </mat-card>
 </div>

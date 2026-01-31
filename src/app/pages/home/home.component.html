@@ -17,22 +17,30 @@
         </div>
       }
       @case ('comparing') {
-        @if (leftAnime() && rightAnime()) {
-          <app-anime-comparison
-            [leftAnime]="leftAnime()!"
-            [rightAnime]="rightAnime()!"
-            [progress]="progress()"
-            [comparisonsDone]="comparisonState().comparisonsDone"
-            [totalComparisons]="comparisonState().totalComparisons"
-            [canUndo]="canUndo()"
-            [canRedo]="canRedo()"
-            (animeSelected)="onAnimeSelected($event)"
-            (comparisonSkipped)="onComparisonSkipped()"
-            (rankingDiscarded)="onRankingDiscarded()"
-            (undoRequested)="onUndo()"
-            (redoRequested)="onRedo()"
+        <div class="comparison-with-results">
+          @if (leftAnime() && rightAnime()) {
+            <app-anime-comparison
+              [leftAnime]="leftAnime()!"
+              [rightAnime]="rightAnime()!"
+              [progress]="progress()"
+              [comparisonsDone]="comparisonState().comparisonsDone"
+              [totalComparisons]="comparisonState().totalComparisons"
+              [canUndo]="canUndo()"
+              [canRedo]="canRedo()"
+              (animeSelected)="onAnimeSelected($event)"
+              (comparisonSkipped)="onComparisonSkipped()"
+              (rankingDiscarded)="onRankingDiscarded()"
+              (undoRequested)="onUndo()"
+              (redoRequested)="onRedo()"
+              (exportRequested)="onExport()"
+            />
+          }
+          <app-ranking-results
+            [rankedAnime]="liveRatingsWithImages()"
+            [isLiveMode]="true"
+            [accuracy]="accuracy()"
           />
-        }
+        </div>
       }
       @case ('results') {
         <app-ranking-results

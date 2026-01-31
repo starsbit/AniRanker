@@ -45,6 +45,43 @@ export class RankingService {
     return Math.round((state.comparisonsDone / state.totalComparisons) * 100);
   });
 
+  liveRatings = computed(() => {
+    const list = this.animeList();
+    return this.calculateCurrentRatings(list);
+  });
+
+  /**
+   * Calculate accuracy/confidence metric based on comparison coverage
+   * Returns percentage (0-100) indicating how confident we are in the rankings
+   */
+  accuracy = computed(() => {
+    const list = this.animeList();
+    const state = this.comparisonState();
+    
+    if (list.length === 0 || state.comparisonsDone === 0) return 0;
+    
+    // Calculate average comparisons per item
+    const totalComparisons = list.reduce((sum, a) => sum + a.comparisons, 0);
+    const avgComparisons = totalComparisons / list.length;
+    
+    // Ideal number: log2(n) * 3 comparisons per item
+    const idealComparisons = Math.ceil(Math.log2(list.length + 1) * 3);
+    
+    // Calculate coverage (capped at 100%)
+    const coverage = Math.min(100, (avgComparisons / idealComparisons) * 100);
+    
+    // Calculate balance (how evenly distributed are comparisons?)
+    const comparisons = list.map(a => a.comparisons);
+    const minComp = Math.min(...comparisons);
+    const maxComp = Math.max(...comparisons);
+    const balance = maxComp > 0 ? (minComp / maxComp) * 100 : 0;
+    
+    // Weighted score: 70% coverage, 30% balance
+    const accuracy = coverage * 0.7 + balance * 0.3;
+    
+    return Math.round(accuracy);
+  });
+
   initializeRanking(animeList: Anime[], useExistingRatings: boolean = false): void {
     const initialized = animeList.map(a => ({
       ...a,
@@ -349,7 +386,10 @@ export class RankingService {
   }
 
   calculateFinalRatings(): Anime[] {
-    const animeList = this.animeList();
+    return this.calculateCurrentRatings(this.animeList());
+  }
+
+  private calculateCurrentRatings(animeList: Anime[]): Anime[] {
     if (animeList.length === 0) return [];
 
     // Use log of Bradley-Terry strengths for more stable distribution

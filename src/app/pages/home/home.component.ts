@@ -50,6 +50,8 @@ export class HomeComponent implements OnInit {
   imageCache = this.jikan.imageCache;
   canUndo = this.ranking.canUndo;
   canRedo = this.ranking.canRedo;
+  liveRatings = this.ranking.liveRatings;
+  accuracy = this.ranking.accuracy;
 
   constructor() {
     effect(() => {
@@ -101,6 +103,15 @@ export class HomeComponent implements OnInit {
       ...anime,
       imageUrl: cache.get(anime.id)
     };
+  });
+
+  liveRatingsWithImages = computed(() => {
+    const ratings = this.liveRatings();
+    const cache = this.imageCache();
+    return ratings.map(item => ({
+      ...item,
+      imageUrl: cache.get(item.id)
+    }));
   });
 
   async onFileSelected(file: File): Promise<void> {

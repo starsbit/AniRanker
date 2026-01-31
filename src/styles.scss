@@ -17,3 +17,17 @@ body {
   .mdc-notched-outline__notch {
   border-right-style: hidden;
 }
+
+// Fix tooltip background transparency issue caused by Tailwind
+.mat-mdc-tooltip {
+  --mdc-plain-tooltip-container-color: grey !important;
+  --mdc-plain-tooltip-supporting-text-color: #ffffff !important;
+  background-color: grey !important;
+  color: #ffffff !important;
+  opacity: 1 !important;
+}
+
+.mat-mdc-tooltip .mdc-tooltip__surface {
+  background-color: grey !important;
+  color: #ffffff !important;
+}
