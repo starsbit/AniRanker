@@ -1,4 +1,4 @@
-import { Injectable, signal, computed } from '@angular/core';
+import { Injectable, signal, computed, untracked } from '@angular/core';
 import { Anime, ComparisonState } from '../models/anime.model';
 
 interface Match {
@@ -27,6 +27,8 @@ export class RankingService {
   private history: HistoryEntry[] = [];
   private historyIndex = signal<number>(-1);
   private comparisonMatrix = new Map<string, { wins: number; total: number }>();
+  private needsStrengthUpdate = false;
+  private comparisonCount = 0;
 
   comparisonState = signal<ComparisonState>({
     currentPair: null,
@@ -46,6 +48,7 @@ export class RankingService {
   });
 
   liveRatings = computed(() => {
+    // Just calculate ratings from current state without modifying signals
     const list = this.animeList();
     return this.calculateCurrentRatings(list);
   });
@@ -239,7 +242,7 @@ export class RankingService {
     const reverseExisting = this.comparisonMatrix.get(reverseKey) || { wins: 0, total: 0 };
     this.comparisonMatrix.set(reverseKey, { wins: reverseExisting.wins, total: reverseExisting.total + 1 });
 
-    // Update win/loss counts
+    // Update win/loss counts immediately (fast)
     const updatedList = this.animeList().map(anime => {
       if (anime.id === winner.id) {
         return {
@@ -257,8 +260,16 @@ export class RankingService {
       return anime;
     });
 
-    // Recalculate Bradley-Terry strengths after each comparison
-    this.updateBradleyTerryStrengths(updatedList);
+    this.animeList.set(updatedList);
+    this.comparisonCount++;
+    
+    // Update Bradley-Terry strengths every 5 comparisons for performance
+    // Use untracked to avoid signal dependency issues
+    if (this.comparisonCount % 1 === 0) {
+      untracked(() => {
+        this.updateBradleyTerryStrengthsImmediate();
+      });
+    }
 
     const currentState = this.comparisonState();
     const comparisonsDone = currentState.comparisonsDone + 1;
@@ -298,61 +309,65 @@ export class RankingService {
    * Bradley-Terry model: Iteratively updates strength parameters
    * Formula: strength_i = wins_i / sum_j(total_comparisons_ij / (strength_i + strength_j))
    */
-  private updateBradleyTerryStrengths(animeList: Anime[]): void {
+  private updateBradleyTerryStrengthsImmediate(): void {
+    const animeList = this.animeList();
     const n = animeList.length;
     const strengths = new Map<number, number>();
     
     // Initialize strengths
     animeList.forEach(a => strengths.set(a.id, a.elo || 1.0));
 
+    // Pre-compute comparison data for each anime to avoid repeated lookups
+    const comparisonData = new Map<number, { wins: number; total: number; opponents: Array<{ id: number; total: number }> }>();
+    
+    for (const anime of animeList) {
+      let wins = 0;
+      let totalComparisons = 0;
+      const opponents: Array<{ id: number; total: number }> = [];
+      
+      for (const opponent of animeList) {
+        if (opponent.id === anime.id) continue;
+        
+        const key = `${anime.id}-${opponent.id}`;
+        const comparison = this.comparisonMatrix.get(key);
+        if (comparison && comparison.total > 0) {
+          wins += comparison.wins;
+          totalComparisons += comparison.total;
+          opponents.push({ id: opponent.id, total: comparison.total });
+        }
+      }
+      
+      comparisonData.set(anime.id, { wins, total: totalComparisons, opponents });
+    }
+
     // Iterative algorithm (MM algorithm) - converges to maximum likelihood
-    const maxIterations = 50; // Increased for better convergence
-    const tolerance = 0.00001; // Tighter tolerance
+    const maxIterations = 25; // Reduced further for performance
+    const tolerance = 0.0001; // Relaxed for speed
 
     for (let iter = 0; iter < maxIterations; iter++) {
       const newStrengths = new Map<number, number>();
       let maxChange = 0;
 
       for (const anime of animeList) {
-        // Calculate wins from comparison matrix (more accurate than anime.wins)
-        let wins = 0;
-        let totalComparisons = 0;
-        
-        for (const opponent of animeList) {
-          if (opponent.id === anime.id) continue;
-          
-          const key = `${anime.id}-${opponent.id}`;
-          const comparison = this.comparisonMatrix.get(key);
-          if (comparison) {
-            wins += comparison.wins;
-            totalComparisons += comparison.total;
-          }
+        const data = comparisonData.get(anime.id);
+        if (!data || data.total === 0) {
+          newStrengths.set(anime.id, strengths.get(anime.id) || 1.0);
+          continue;
         }
         
         let denominator = 0;
+        const si = strengths.get(anime.id) || 1.0;
 
-        // Sum over all opponents
-        for (const opponent of animeList) {
-          if (opponent.id === anime.id) continue;
-
-          const key = `${anime.id}-${opponent.id}`;
-          const comparison = this.comparisonMatrix.get(key);
-          
-          if (comparison && comparison.total > 0) {
-            const si = strengths.get(anime.id) || 1.0;
-            const sj = strengths.get(opponent.id) || 1.0;
-            denominator += comparison.total / (si + sj);
-          }
+        // Sum over opponents with comparisons
+        for (const opp of data.opponents) {
+          const sj = strengths.get(opp.id) || 1.0;
+          denominator += opp.total / (si + sj);
         }
 
-        // If no comparisons yet, keep initial strength
-        const newStrength = totalComparisons > 0 && denominator > 0 
-          ? wins / denominator 
-          : strengths.get(anime.id) || 1.0;
-          
-        newStrengths.set(anime.id, Math.max(0.01, newStrength)); // Prevent zero/negative
+        const newStrength = denominator > 0 ? data.wins / denominator : si;
+        newStrengths.set(anime.id, Math.max(0.01, newStrength));
 
-        const change = Math.abs(newStrength - (strengths.get(anime.id) || 1.0));
+        const change = Math.abs(newStrength - si);
         maxChange = Math.max(maxChange, change);
       }
 
@@ -386,6 +401,8 @@ export class RankingService {
   }
 
   calculateFinalRatings(): Anime[] {
+    // Force final strength update
+    this.updateBradleyTerryStrengthsImmediate();
     return this.calculateCurrentRatings(this.animeList());
   }
 
