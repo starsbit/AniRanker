@@ -1,0 +1,110 @@
+<h2 mat-dialog-title>
+  <mat-icon color="accent">lightbulb</mat-icon>
+  Use Your Existing Ratings?
+</h2>
+
+<mat-dialog-content>
+  <p class="mat-body-1">
+    We detected that <strong>{{ data.withRatings }} out of {{ data.totalAnime }}</strong> 
+    items in your list have existing ratings.
+  </p>
+
+  <mat-card appearance="outlined" class="benefit-card">
+    <mat-card-header>
+      <mat-icon mat-card-avatar color="primary">trending_down</mat-icon>
+      <mat-card-title>Fewer Comparisons Needed</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <mat-list dense>
+        <mat-list-item>
+          <span matListItemTitle>Without ratings:</span>
+          <span matListItemLine><strong>~{{ data.normalComparisons }} comparisons</strong></span>
+        </mat-list-item>
+        <mat-list-item>
+          <span matListItemTitle>With ratings:</span>
+          <span matListItemLine><strong class="highlight">~{{ data.reducedComparisons }} comparisons</strong></span>
+        </mat-list-item>
+      </mat-list>
+      <mat-card appearance="outlined" class="savings-card">
+        <mat-card-content>
+          <mat-icon color="primary">savings</mat-icon>
+          Save approximately <strong>{{ getSavingsPercent() }}%</strong> of comparisons!
+        </mat-card-content>
+      </mat-card>
+    </mat-card-content>
+  </mat-card>
+
+  <mat-divider></mat-divider>
+
+  <mat-card appearance="outlined" class="info-card">
+    <mat-card-header>
+      <mat-icon mat-card-avatar color="primary">info</mat-icon>
+      <mat-card-title>How It Works</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <p class="mat-body-2">
+        Your existing ratings will be used to initialize the ranking algorithm, reducing the number
+        of comparisons needed to reach accurate results. The algorithm will still adapt based on your
+        actual preferences during comparisons.
+      </p>
+    </mat-card-content>
+  </mat-card>
+
+  <mat-card appearance="outlined" class="tradeoff-card">
+    <mat-card-header>
+      <mat-icon mat-card-avatar color="warn">balance</mat-icon>
+      <mat-card-title>Potential Trade-offs</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <mat-list dense>
+        <mat-list-item>
+          <mat-icon matListItemIcon>arrow_right</mat-icon>
+          <span matListItemTitle>Initial Bias</span>
+          <span matListItemLine class="mat-body-2">
+            The algorithm starts with assumptions based on your existing ratings rather than from scratch.
+          </span>
+        </mat-list-item>
+        <mat-divider></mat-divider>
+        <mat-list-item>
+          <mat-icon matListItemIcon>arrow_right</mat-icon>
+          <span matListItemTitle>Adaptation</span>
+          <span matListItemLine class="mat-body-2">
+            If your preferences differ from your original ratings, the algorithm will adjust, but may need 
+            a few extra comparisons to override the initial ratings.
+          </span>
+        </mat-list-item>
+        <mat-divider></mat-divider>
+        <mat-list-item>
+          <mat-icon matListItemIcon>arrow_right</mat-icon>
+          <span matListItemTitle>Best For</span>
+          <span matListItemLine class="mat-body-2">
+            Lists where your existing ratings are generally accurate and reflect your current preferences.
+          </span>
+        </mat-list-item>
+      </mat-list>
+    </mat-card-content>
+  </mat-card>
+
+  <mat-card appearance="outlined" class="recommendation-card">
+    <mat-card-content>
+      <div class="recommendation-content">
+        <mat-icon color="accent">thumb_up</mat-icon>
+        <p class="mat-body-2">
+          <strong>Recommendation:</strong> Use existing ratings if you trust your past scores and want to save time.
+          Start fresh if you want completely unbiased results or your tastes have changed significantly.
+        </p>
+      </div>
+    </mat-card-content>
+  </mat-card>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="onNo()">
+    <mat-icon>block</mat-icon>
+    Start Fresh
+  </button>
+  <button mat-raised-button color="primary" (click)="onYes()">
+    <mat-icon>check_circle</mat-icon>
+    Use Existing Ratings
+  </button>
+</mat-dialog-actions>

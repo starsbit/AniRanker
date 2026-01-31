@@ -1,0 +1,278 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+  Created by XML Export feature at MyAnimeList.net
+  Exported at: Thu Jan 31 13:52:00 2026
+-->
+
+<myanimelist>
+
+  <myinfo>
+    <user_id>12345</user_id>
+    <user_name>TestUser</user_name>
+    <user_export_type>1</user_export_type>
+    <user_total_anime>10</user_total_anime>
+    <user_total_watching>0</user_total_watching>
+    <user_total_completed>10</user_total_completed>
+  </myinfo>
+
+  <anime>
+    <series_animedb_id>1</series_animedb_id>
+    <series_title>Cowboy Bebop</series_title>
+    <series_type>TV</series_type>
+    <series_episodes>26</series_episodes>
+    <my_id>0</my_id>
+    <my_watched_episodes>26</my_watched_episodes>
+    <my_start_date>0000-00-00</my_start_date>
+    <my_finish_date>0000-00-00</my_finish_date>
+    <my_rated></my_rated>
+    <my_score>9</my_score>
+    <my_storage></my_storage>
+    <my_storage_value>0.00</my_storage_value>
+    <my_status>Completed</my_status>
+    <my_comments><![CDATA[]]></my_comments>
+    <my_times_watched>0</my_times_watched>
+    <my_rewatch_value></my_rewatch_value>
+    <my_priority>LOW</my_priority>
+    <my_tags><![CDATA[]]></my_tags>
+    <my_rewatching>0</my_rewatching>
+    <my_rewatching_ep>0</my_rewatching_ep>
+    <my_discuss>1</my_discuss>
+    <my_sns>default</my_sns>
+    <update_on_import>0</update_on_import>
+  </anime>
+
+  <anime>
+    <series_animedb_id>5</series_animedb_id>
+    <series_title>Fullmetal Alchemist: Brotherhood</series_title>
+    <series_type>TV</series_type>
+    <series_episodes>64</series_episodes>
+    <my_id>0</my_id>
+    <my_watched_episodes>64</my_watched_episodes>
+    <my_start_date>0000-00-00</my_start_date>
+    <my_finish_date>0000-00-00</my_finish_date>
+    <my_rated></my_rated>
+    <my_score>10</my_score>
+    <my_storage></my_storage>
+    <my_storage_value>0.00</my_storage_value>
+    <my_status>Completed</my_status>
+    <my_comments><![CDATA[]]></my_comments>
+    <my_times_watched>0</my_times_watched>
+    <my_rewatch_value></my_rewatch_value>
+    <my_priority>LOW</my_priority>
+    <my_tags><![CDATA[]]></my_tags>
+    <my_rewatching>0</my_rewatching>
+    <my_rewatching_ep>0</my_rewatching_ep>
+    <my_discuss>1</my_discuss>
+    <my_sns>default</my_sns>
+    <update_on_import>0</update_on_import>
+  </anime>
+
+  <anime>
+    <series_animedb_id>16498</series_animedb_id>
+    <series_title>Attack on Titan</series_title>
+    <series_type>TV</series_type>
+    <series_episodes>25</series_episodes>
+    <my_id>0</my_id>
+    <my_watched_episodes>25</my_watched_episodes>
+    <my_start_date>0000-00-00</my_start_date>
+    <my_finish_date>0000-00-00</my_finish_date>
+    <my_rated></my_rated>
+    <my_score>8</my_score>
+    <my_storage></my_storage>
+    <my_storage_value>0.00</my_storage_value>
+    <my_status>Completed</my_status>
+    <my_comments><![CDATA[]]></my_comments>
+    <my_times_watched>0</my_times_watched>
+    <my_rewatch_value></my_rewatch_value>
+    <my_priority>LOW</my_priority>
+    <my_tags><![CDATA[]]></my_tags>
+    <my_rewatching>0</my_rewatching>
+    <my_rewatching_ep>0</my_rewatching_ep>
+    <my_discuss>1</my_discuss>
+    <my_sns>default</my_sns>
+    <update_on_import>0</update_on_import>
+  </anime>
+
+  <anime>
+    <series_animedb_id>9253</series_animedb_id>
+    <series_title>Steins;Gate</series_title>
+    <series_type>TV</series_type>
+    <series_episodes>24</series_episodes>
+    <my_id>0</my_id>
+    <my_watched_episodes>24</my_watched_episodes>
+    <my_start_date>0000-00-00</my_start_date>
+    <my_finish_date>0000-00-00</my_finish_date>
+    <my_rated></my_rated>
+    <my_score>9</my_score>
+    <my_storage></my_storage>
+    <my_storage_value>0.00</my_storage_value>
+    <my_status>Completed</my_status>
+    <my_comments><![CDATA[]]></my_comments>
+    <my_times_watched>0</my_times_watched>
+    <my_rewatch_value></my_rewatch_value>
+    <my_priority>LOW</my_priority>
+    <my_tags><![CDATA[]]></my_tags>
+    <my_rewatching>0</my_rewatching>
+    <my_rewatching_ep>0</my_rewatching_ep>
+    <my_discuss>1</my_discuss>
+    <my_sns>default</my_sns>
+    <update_on_import>0</update_on_import>
+  </anime>
+
+  <anime>
+    <series_animedb_id>11061</series_animedb_id>
+    <series_title>Hunter x Hunter (2011)</series_title>
+    <series_type>TV</series_type>
+    <series_episodes>148</series_episodes>
+    <my_id>0</my_id>
+    <my_watched_episodes>148</my_watched_episodes>
+    <my_start_date>0000-00-00</my_start_date>
+    <my_finish_date>0000-00-00</my_finish_date>
+    <my_rated></my_rated>
+    <my_score>10</my_score>
+    <my_storage></my_storage>
+    <my_storage_value>0.00</my_storage_value>
+    <my_status>Completed</my_status>
+    <my_comments><![CDATA[]]></my_comments>
+    <my_times_watched>0</my_times_watched>
+    <my_rewatch_value></my_rewatch_value>
+    <my_priority>LOW</my_priority>
+    <my_tags><![CDATA[]]></my_tags>
+    <my_rewatching>0</my_rewatching>
+    <my_rewatching_ep>0</my_rewatching_ep>
+    <my_discuss>1</my_discuss>
+    <my_sns>default</my_sns>
+    <update_on_import>0</update_on_import>
+  </anime>
+
+  <anime>
+    <series_animedb_id>820</series_animedb_id>
+    <series_title>Ginga Eiyuu Densetsu</series_title>
+    <series_type>OVA</series_type>
+    <series_episodes>110</series_episodes>
+    <my_id>0</my_id>
+    <my_watched_episodes>110</my_watched_episodes>
+    <my_start_date>0000-00-00</my_start_date>
+    <my_finish_date>0000-00-00</my_finish_date>
+    <my_rated></my_rated>
+    <my_score>7</my_score>
+    <my_storage></my_storage>
+    <my_storage_value>0.00</my_storage_value>
+    <my_status>Completed</my_status>
+    <my_comments><![CDATA[]]></my_comments>
+    <my_times_watched>0</my_times_watched>
+    <my_rewatch_value></my_rewatch_value>
+    <my_priority>LOW</my_priority>
+    <my_tags><![CDATA[]]></my_tags>
+    <my_rewatching>0</my_rewatching>
+    <my_rewatching_ep>0</my_rewatching_ep>
+    <my_discuss>1</my_discuss>
+    <my_sns>default</my_sns>
+    <update_on_import>0</update_on_import>
+  </anime>
+
+  <anime>
+    <series_animedb_id>1535</series_animedb_id>
+    <series_title>Death Note</series_title>
+    <series_type>TV</series_type>
+    <series_episodes>37</series_episodes>
+    <my_id>0</my_id>
+    <my_watched_episodes>37</my_watched_episodes>
+    <my_start_date>0000-00-00</my_start_date>
+    <my_finish_date>0000-00-00</my_finish_date>
+    <my_rated></my_rated>
+    <my_score>8</my_score>
+    <my_storage></my_storage>
+    <my_storage_value>0.00</my_storage_value>
+    <my_status>Completed</my_status>
+    <my_comments><![CDATA[]]></my_comments>
+    <my_times_watched>0</my_times_watched>
+    <my_rewatch_value></my_rewatch_value>
+    <my_priority>LOW</my_priority>
+    <my_tags><![CDATA[]]></my_tags>
+    <my_rewatching>0</my_rewatching>
+    <my_rewatching_ep>0</my_rewatching_ep>
+    <my_discuss>1</my_discuss>
+    <my_sns>default</my_sns>
+    <update_on_import>0</update_on_import>
+  </anime>
+
+  <anime>
+    <series_animedb_id>199</series_animedb_id>
+    <series_title>Sen to Chihiro no Kamikakushi</series_title>
+    <series_type>Movie</series_type>
+    <series_episodes>1</series_episodes>
+    <my_id>0</my_id>
+    <my_watched_episodes>1</my_watched_episodes>
+    <my_start_date>0000-00-00</my_start_date>
+    <my_finish_date>0000-00-00</my_finish_date>
+    <my_rated></my_rated>
+    <my_score>6</my_score>
+    <my_storage></my_storage>
+    <my_storage_value>0.00</my_storage_value>
+    <my_status>Completed</my_status>
+    <my_comments><![CDATA[]]></my_comments>
+    <my_times_watched>0</my_times_watched>
+    <my_rewatch_value></my_rewatch_value>
+    <my_priority>LOW</my_priority>
+    <my_tags><![CDATA[]]></my_tags>
+    <my_rewatching>0</my_rewatching>
+    <my_rewatching_ep>0</my_rewatching_ep>
+    <my_discuss>1</my_discuss>
+    <my_sns>default</my_sns>
+    <update_on_import>0</update_on_import>
+  </anime>
+
+  <anime>
+    <series_animedb_id>32281</series_animedb_id>
+    <series_title>Kimi no Na wa.</series_title>
+    <series_type>Movie</series_type>
+    <series_episodes>1</series_episodes>
+    <my_id>0</my_id>
+    <my_watched_episodes>1</my_watched_episodes>
+    <my_start_date>0000-00-00</my_start_date>
+    <my_finish_date>0000-00-00</my_finish_date>
+    <my_rated></my_rated>
+    <my_score>9</my_score>
+    <my_storage></my_storage>
+    <my_storage_value>0.00</my_storage_value>
+    <my_status>Completed</my_status>
+    <my_comments><![CDATA[]]></my_comments>
+    <my_times_watched>0</my_times_watched>
+    <my_rewatch_value></my_rewatch_value>
+    <my_priority>LOW</my_priority>
+    <my_tags><![CDATA[]]></my_tags>
+    <my_rewatching>0</my_rewatching>
+    <my_rewatching_ep>0</my_rewatching_ep>
+    <my_discuss>1</my_discuss>
+    <my_sns>default</my_sns>
+    <update_on_import>0</update_on_import>
+  </anime>
+
+  <anime>
+    <series_animedb_id>28851</series_animedb_id>
+    <series_title>Koe no Katachi</series_title>
+    <series_type>Movie</series_type>
+    <series_episodes>1</series_episodes>
+    <my_id>0</my_id>
+    <my_watched_episodes>1</my_watched_episodes>
+    <my_start_date>0000-00-00</my_start_date>
+    <my_finish_date>0000-00-00</my_finish_date>
+    <my_rated></my_rated>
+    <my_score>8</my_score>
+    <my_storage></my_storage>
+    <my_storage_value>0.00</my_storage_value>
+    <my_status>Completed</my_status>
+    <my_comments><![CDATA[]]></my_comments>
+    <my_times_watched>0</my_times_watched>
+    <my_rewatch_value></my_rewatch_value>
+    <my_priority>LOW</my_priority>
+    <my_tags><![CDATA[]]></my_tags>
+    <my_rewatching>0</my_rewatching>
+    <my_rewatching_ep>0</my_rewatching_ep>
+    <my_discuss>1</my_discuss>
+    <my_sns>default</my_sns>
+    <update_on_import>0</update_on_import>
+  </anime>
+
+</myanimelist>

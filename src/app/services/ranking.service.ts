@@ -45,10 +45,10 @@ export class RankingService {
     return Math.round((state.comparisonsDone / state.totalComparisons) * 100);
   });
 
-  initializeRanking(animeList: Anime[]): void {
+  initializeRanking(animeList: Anime[], useExistingRatings: boolean = false): void {
     const initialized = animeList.map(a => ({
       ...a,
-      elo: 1.0, // Bradley-Terry strength parameter starts at 1.0
+      elo: useExistingRatings && a.rating ? this.ratingToStrength(a.rating) : 1.0,
       comparisons: 0,
       wins: 0,
       losses: 0
@@ -56,13 +56,16 @@ export class RankingService {
 
     this.animeList.set(initialized);
     this.comparisonMatrix.clear();
-    this.matches = this.generateMergeSortMatches(initialized.length);
+    this.matches = this.generateMergeSortMatches(initialized.length, useExistingRatings);
     this.shuffledIndices = this.shuffleArray([...Array(initialized.length).keys()]);
     this.currentMatchIndex = 0;
 
+    // Reduce comparisons if using existing ratings (we start closer to true strengths)
+    const baseComparisons = Math.ceil(initialized.length * Math.log2(initialized.length + 1) * 2);
+    const reductionFactor = useExistingRatings && this.hasGoodRatingCoverage(initialized) ? 0.6 : 1.0;
     const total = Math.min(
       this.matches.length,
-      Math.ceil(initialized.length * Math.log2(initialized.length + 1) * 2)
+      Math.ceil(baseComparisons * reductionFactor)
     );
 
     const initialPair = this.getNextPair();
@@ -85,7 +88,7 @@ export class RankingService {
     this.historyIndex.set(0);
   }
 
-  private generateMergeSortMatches(n: number): Match[] {
+  private generateMergeSortMatches(n: number, useExistingRatings: boolean = false): Match[] {
     const matches: Match[] = [];
     const comparisonsPerItem = Math.ceil(Math.log2(n + 1) * 3);
     const comparisonCounts = new Array(n).fill(0);
@@ -94,6 +97,16 @@ export class RankingService {
       const shuffled = this.shuffleArray([...Array(n).keys()]);
 
       const available = shuffled.sort((a, b) => comparisonCounts[a] - comparisonCounts[b]);
+      
+      // When using existing ratings, prioritize pairing similar-rated anime
+      if (useExistingRatings && round % 2 === 0) {
+        const list = this.animeList();
+        available.sort((a, b) => {
+          const ratingA = list[a]?.rating || 0;
+          const ratingB = list[b]?.rating || 0;
+          return ratingA - ratingB;
+        });
+      }
       
       for (let i = 0; i < available.length - 1; i += 2) {
         const idx1 = available[i];
@@ -115,6 +128,28 @@ export class RankingService {
       [result[i], result[j]] = [result[j], result[i]];
     }
     return result;
+  }
+
+  /**
+   * Convert MAL-style rating (1-10) to Bradley-Terry strength parameter
+   * Uses exponential transformation to preserve relative differences
+   * Rating 7.0 -> strength 1.0 (our baseline)
+   * Higher ratings -> exponentially higher strength
+   */
+  private ratingToStrength(rating: number): number {
+    // Scale factor controls how much ratings affect initial strength
+    // Higher = more conservative, lower = more aggressive
+    const scaleFactor = 2.0;
+    return Math.exp((rating - this.TARGET_MEAN) / scaleFactor);
+  }
+
+  /**
+   * Check if anime list has good rating coverage
+   * Returns true if most anime have ratings
+   */
+  private hasGoodRatingCoverage(animeList: Anime[]): boolean {
+    const withRatings = animeList.filter(a => a.rating && a.rating > 0).length;
+    return withRatings / animeList.length >= 0.7; // At least 70% have ratings
   }
 
   private getNextPair(): [Anime, Anime] | null {

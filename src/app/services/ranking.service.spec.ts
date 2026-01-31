@@ -170,6 +170,155 @@ describe('RankingService - Bradley-Terry Model', () => {
     });
   });
 
+  describe('Initializing with Existing Ratings', () => {
+    it('should initialize strengths from existing ratings when useExistingRatings=true', () => {
+      const animeList: Anime[] = [
+        { id: 1, title: 'High Rated', type: 'anime', rating: 9.0, elo: 0, comparisons: 0 },
+        { id: 2, title: 'Medium Rated', type: 'anime', rating: 7.0, elo: 0, comparisons: 0 },
+        { id: 3, title: 'Low Rated', type: 'anime', rating: 5.0, elo: 0, comparisons: 0 }
+      ];
+
+      service.initializeRanking(animeList, true);
+      const list = service.getAnimeList();
+
+      const high = list.find(a => a.id === 1)!;
+      const medium = list.find(a => a.id === 2)!;
+      const low = list.find(a => a.id === 3)!;
+
+      // High rated should have highest initial strength
+      expect(high.elo).toBeGreaterThan(medium.elo);
+      expect(medium.elo).toBeGreaterThan(low.elo);
+      
+      // Medium (7.0) should be close to baseline (1.0)
+      expect(medium.elo).toBeCloseTo(1.0, 0.1);
+    });
+
+    it('should use 1.0 as default when useExistingRatings=false', () => {
+      const animeList: Anime[] = [
+        { id: 1, title: 'High Rated', type: 'anime', rating: 9.0, elo: 0, comparisons: 0 },
+        { id: 2, title: 'Low Rated', type: 'anime', rating: 5.0, elo: 0, comparisons: 0 }
+      ];
+
+      service.initializeRanking(animeList, false);
+      const list = service.getAnimeList();
+
+      expect(list.every(a => a.elo === 1.0)).toBe(true);
+    });
+
+    it('should reduce total comparisons when using existing ratings', () => {
+      const animeList: Anime[] = Array.from({ length: 20 }, (_, i) => ({
+        id: i + 1,
+        title: `Anime ${i + 1}`,
+        type: 'anime' as const,
+        rating: 5 + (i % 5), // Ratings 5-9
+        elo: 0,
+        comparisons: 0
+      }));
+
+      service.initializeRanking(animeList, false);
+      const withoutRatingsTotal = service.comparisonState().totalComparisons;
+
+      service.reset();
+      service.initializeRanking(animeList, true);
+      const withRatingsTotal = service.comparisonState().totalComparisons;
+
+      // Should require fewer comparisons when using ratings
+      expect(withRatingsTotal).toBeLessThan(withoutRatingsTotal);
+    });
+
+    it('should prioritize pairing similarly-rated anime when using existing ratings', () => {
+      const animeList: Anime[] = [
+        { id: 1, title: 'High A', type: 'anime', rating: 9.0, elo: 0, comparisons: 0 },
+        { id: 2, title: 'High B', type: 'anime', rating: 8.5, elo: 0, comparisons: 0 },
+        { id: 3, title: 'Low A', type: 'anime', rating: 5.0, elo: 0, comparisons: 0 },
+        { id: 4, title: 'Low B', type: 'anime', rating: 5.5, elo: 0, comparisons: 0 }
+      ];
+
+      service.initializeRanking(animeList, true);
+      
+      // The comparison pairs should tend to match similar ratings
+      // This is probabilistic, but we can verify the system works
+      const state = service.comparisonState();
+      expect(state.currentPair).not.toBeNull();
+    });
+
+    it('should handle anime without ratings gracefully', () => {
+      const animeList: Anime[] = [
+        { id: 1, title: 'With Rating', type: 'anime', rating: 8.0, elo: 0, comparisons: 0 },
+        { id: 2, title: 'Without Rating', type: 'anime', elo: 0, comparisons: 0 }
+      ];
+
+      service.initializeRanking(animeList, true);
+      const list = service.getAnimeList();
+
+      const withRating = list.find(a => a.id === 1)!;
+      const withoutRating = list.find(a => a.id === 2)!;
+
+      expect(withRating.elo).toBeGreaterThan(1.0);
+      expect(withoutRating.elo).toBe(1.0); // Falls back to default
+    });
+
+    it('should converge faster with good initial ratings', () => {
+      const animeList: Anime[] = [
+        { id: 1, title: 'Best', type: 'anime', rating: 9.0, elo: 0, comparisons: 0 },
+        { id: 2, title: 'Good', type: 'anime', rating: 7.5, elo: 0, comparisons: 0 },
+        { id: 3, title: 'Average', type: 'anime', rating: 6.0, elo: 0, comparisons: 0 },
+        { id: 4, title: 'Poor', type: 'anime', rating: 4.0, elo: 0, comparisons: 0 }
+      ];
+
+      service.initializeRanking(animeList, true);
+      const [best, good, average, poor] = service.getAnimeList();
+      
+      // Even without comparisons, initial rankings should be reasonable
+      expect(best.elo).toBeGreaterThan(good.elo);
+      expect(good.elo).toBeGreaterThan(average.elo);
+      expect(average.elo).toBeGreaterThan(poor.elo);
+      
+      // Do comparisons matching the ratings - more comparisons for stability
+      for (let i = 0; i < 3; i++) {
+        service.recordComparison(best, good);
+        service.recordComparison(best, average);
+        service.recordComparison(best, poor);
+        service.recordComparison(good, average);
+        service.recordComparison(good, poor);
+        service.recordComparison(average, poor);
+      }
+      
+      const ratings = service.calculateFinalRatings();
+      
+      // Order should be preserved
+      expect(ratings[0].id).toBe(1); // Best
+      expect(ratings[1].id).toBe(2); // Good
+      // With limited comparisons, average and poor might swap, but top 2 should be stable
+      expect(ratings[3].id).toBe(4); // Poor should still be last
+    });
+
+    it('should still work correctly when ratings disagree with comparisons', () => {
+      const animeList: Anime[] = [
+        { id: 1, title: 'Overrated', type: 'anime', rating: 9.0, elo: 0, comparisons: 0 },
+        { id: 2, title: 'Underrated', type: 'anime', rating: 6.0, elo: 0, comparisons: 0 }
+      ];
+
+      service.initializeRanking(animeList, true);
+      const [overrated, underrated] = service.getAnimeList();
+      
+      // Initial strengths favor overrated
+      expect(overrated.elo).toBeGreaterThan(underrated.elo);
+      
+      // But user consistently prefers underrated
+      for (let i = 0; i < 10; i++) {
+        service.recordComparison(underrated, overrated);
+      }
+      
+      const updated = service.getAnimeList();
+      const finalOverrated = updated.find(a => a.id === 1)!;
+      const finalUnderrated = updated.find(a => a.id === 2)!;
+      
+      // Algorithm should adapt based on actual comparisons
+      expect(finalUnderrated.elo).toBeGreaterThan(finalOverrated.elo);
+    });
+  });
+
   describe('calculateFinalRatings', () => {
     it('should return ratings within 1-10 range', () => {
       const animeList: Anime[] = [

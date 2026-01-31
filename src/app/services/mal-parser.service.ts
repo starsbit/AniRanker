@@ -29,6 +29,9 @@ export class MalParserService {
         if (status === 'Completed' || status === 'Watching') {
           const id = parseInt(node.querySelector('series_animedb_id')?.textContent || '0');
           const title = node.querySelector('series_title')?.textContent || 'Unknown';
+          const scoreText = node.querySelector('my_score')?.textContent || '0';
+          const score = parseInt(scoreText);
+          const rating = score > 0 ? score : undefined;
 
           if (id > 0) {
             itemList.push({
@@ -36,7 +39,8 @@ export class MalParserService {
               title,
               elo: this.INITIAL_ELO,
               comparisons: 0,
-              type: 'anime'
+              type: 'anime',
+              rating
             });
           }
         }
@@ -49,6 +53,9 @@ export class MalParserService {
         if (status === 'Completed' || status === 'Reading') {
           const id = parseInt(node.querySelector('manga_mangadb_id')?.textContent || '0');
           const title = node.querySelector('manga_title')?.textContent || 'Unknown';
+          const scoreText = node.querySelector('my_score')?.textContent || '0';
+          const score = parseInt(scoreText);
+          const rating = score > 0 ? score : undefined;
 
           if (id > 0) {
             itemList.push({
@@ -56,7 +63,8 @@ export class MalParserService {
               title,
               elo: this.INITIAL_ELO,
               comparisons: 0,
-              type: 'manga'
+              type: 'manga',
+              rating
             });
           }
         }

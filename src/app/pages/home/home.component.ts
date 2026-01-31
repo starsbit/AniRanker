@@ -2,9 +2,11 @@ import { ChangeDetectionStrategy, Component, inject, signal, computed, OnInit, e
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatButtonModule } from '@angular/material/button';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatDialog } from '@angular/material/dialog';
 import { FileUploadComponent } from '../../components/file-upload/file-upload.component';
 import { AnimeComparisonComponent } from '../../components/anime-comparison/anime-comparison.component';
 import { RankingResultsComponent } from '../../components/ranking-results/ranking-results.component';
+import { UseRatingsDialogComponent, UseRatingsDialogData } from '../../components/use-ratings-dialog/use-ratings-dialog.component';
 import { MalParserService } from '../../services/mal-parser.service';
 import { JikanService } from '../../services/jikan.service';
 import { RankingService } from '../../services/ranking.service';
@@ -33,6 +35,7 @@ export class HomeComponent implements OnInit {
   private ranking = inject(RankingService);
   private storage = inject(StorageService);
   private snackBar = inject(MatSnackBar);
+  private dialog = inject(MatDialog);
 
   viewState = signal<ViewState>('upload');
   originalXml = signal<string>('');
@@ -116,7 +119,11 @@ export class HomeComponent implements OnInit {
 
       this.originalXml.set(originalXml);
       this.listType.set(type);
-      this.ranking.initializeRanking(anime);
+
+      // Check if we should ask about using existing ratings
+      const useExistingRatings = await this.promptForExistingRatings(anime);
+      
+      this.ranking.initializeRanking(anime, useExistingRatings);
 
       // Only fetch images for the current comparison pair (lazy loading!)
       const currentPair = this.comparisonState().currentPair;
@@ -203,6 +210,53 @@ export class HomeComponent implements OnInit {
 
   onRankingDiscarded(): void {
     this.onReset();
+  }
+
+  private async promptForExistingRatings(animeList: Anime[]): Promise<boolean> {
+    const withRatings = animeList.filter(a => a.rating && a.rating > 0).length;
+    const total = animeList.length;
+    
+    // Only show dialog if at least 30% have ratings
+    if (withRatings / total < 0.3) {
+      return false;
+    }
+
+    // Calculate comparison estimates matching the ranking service logic
+    const normalComparisons = this.estimateComparisons(total, false, withRatings);
+    const reducedComparisons = this.estimateComparisons(total, true, withRatings);
+
+    const dialogData: UseRatingsDialogData = {
+      totalAnime: total,
+      withRatings,
+      normalComparisons,
+      reducedComparisons
+    };
+
+    const dialogRef = this.dialog.open(UseRatingsDialogComponent, {
+      data: dialogData,
+      disableClose: true,
+      width: '600px',
+      maxWidth: '90vw'
+    });
+
+    const result = await dialogRef.afterClosed().toPromise();
+    return result === true;
+  }
+
+  private estimateComparisons(n: number, useExistingRatings: boolean, withRatings: number): number {
+    // Estimate matches generated (same logic as generateMergeSortMatches)
+    const comparisonsPerItem = Math.ceil(Math.log2(n + 1) * 3);
+    const estimatedMatches = Math.floor((n / 2) * comparisonsPerItem);
+    
+    // Base comparisons from the formula
+    const baseComparisons = Math.ceil(n * Math.log2(n + 1) * 2);
+    
+    // Apply reduction factor if using ratings and good coverage
+    const hasGoodCoverage = withRatings / n >= 0.7;
+    const reductionFactor = useExistingRatings && hasGoodCoverage ? 0.6 : 1.0;
+    
+    // Take minimum like the ranking service does
+    return Math.min(estimatedMatches, Math.ceil(baseComparisons * reductionFactor));
   }
 
   private async loadImagesForCurrentPair(

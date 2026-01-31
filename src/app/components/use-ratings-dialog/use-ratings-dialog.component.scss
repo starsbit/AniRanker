@@ -1,0 +1,92 @@
+mat-dialog-content {
+  min-width: 500px;
+  max-width: 600px;
+  padding: 20px;
+}
+
+h2[mat-dialog-title] {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.benefit-card,
+.info-card,
+.tradeoff-card,
+.recommendation-card {
+  margin: 16px 0;
+}
+
+mat-card-header {
+  margin-bottom: 12px;
+}
+
+mat-card-avatar mat-icon {
+  font-size: 32px;
+  width: 32px;
+  height: 32px;
+}
+
+.highlight {
+  color: var(--mat-sys-primary);
+}
+
+.savings-card {
+  margin-top: 12px;
+  background-color: var(--mat-sys-primary-container);
+}
+
+.savings-card mat-card-content {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px;
+}
+
+.savings-card mat-icon {
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+}
+
+.recommendation-card {
+  background-color: var(--mat-sys-secondary-container);
+}
+
+.recommendation-content {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.recommendation-content mat-icon {
+  font-size: 24px;
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+}
+
+.recommendation-content p {
+  margin: 0;
+  flex: 1;
+}
+
+mat-divider {
+  margin: 16px 0;
+}
+
+mat-dialog-actions button mat-icon {
+  margin-right: 4px;
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  vertical-align: middle;
+}
+
+@media (max-width: 600px) {
+  mat-dialog-content {
+    min-width: auto;
+    max-width: 100%;
+    padding: 16px;
+  }
+}
