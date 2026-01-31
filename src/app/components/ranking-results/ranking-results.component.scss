@@ -194,6 +194,12 @@
   justify-content: center;
   gap: 1rem;
   padding: 1.5rem;
+  flex-direction: column;
+}
+
+.export-section {
+  display: flex;
+  flex-direction: column;
 }
 
 @media (max-width: 768px) {

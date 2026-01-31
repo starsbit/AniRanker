@@ -21,6 +21,7 @@ export class RankingResultsComponent {
   accuracy = input<number>(0);
 
   exportRequested = output<Anime[]>();
+  exportCsvRequested = output<Anime[]>();
   resetRequested = output<void>();
 
   displayedColumns = ['rank', 'image', 'title', 'stats', 'rating'];
@@ -264,5 +265,13 @@ representation of relative quality differences between items.`;
 
     const t = z + g + 0.5;
     return 0.5 * Math.log(2 * Math.PI) + (z + 0.5) * Math.log(t) - t + Math.log(x);
+  }
+
+  exportResults(): void {
+    this.exportRequested.emit(this.rankedAnime());
+  }
+
+  exportCsv(): void {
+    this.exportCsvRequested.emit(this.rankedAnime());
   }
 }

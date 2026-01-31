@@ -46,7 +46,8 @@
       @case ('results') {
         <app-ranking-results
           [rankedAnime]="rankedAnime()"
-          (exportRequested)="onExport($event)"
+          (exportRequested)="onExport(liveRatingsWithImages())"
+          (exportCsvRequested)="onExportCsv(liveRatingsWithImages())"
           (resetRequested)="onReset()"
         />
       }
