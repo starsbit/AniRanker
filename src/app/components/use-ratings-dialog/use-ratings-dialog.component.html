@@ -57,29 +57,35 @@
     </mat-card-header>
     <mat-card-content>
       <mat-list dense>
-        <mat-list-item>
-          <mat-icon matListItemIcon>arrow_right</mat-icon>
+        <mat-list-item (click)="toggleItem('bias')" class="expandable-item">
+          <mat-icon matListItemIcon>{{ isExpanded('bias') ? 'expand_more' : 'chevron_right' }}</mat-icon>
           <span matListItemTitle>Initial Bias</span>
-          <span matListItemLine class="mat-body-2">
-            The algorithm starts with assumptions based on your existing ratings rather than from scratch.
-          </span>
+          @if (isExpanded('bias')) {
+            <span matListItemLine class="mat-body-2">
+              The algorithm starts with assumptions based on your existing ratings rather than from scratch.
+            </span>
+          }
         </mat-list-item>
         <mat-divider></mat-divider>
-        <mat-list-item>
-          <mat-icon matListItemIcon>arrow_right</mat-icon>
+        <mat-list-item (click)="toggleItem('adaptation')" class="expandable-item">
+          <mat-icon matListItemIcon>{{ isExpanded('adaptation') ? 'expand_more' : 'chevron_right' }}</mat-icon>
           <span matListItemTitle>Adaptation</span>
-          <span matListItemLine class="mat-body-2">
-            If your preferences differ from your original ratings, the algorithm will adjust, but may need 
-            a few extra comparisons to override the initial ratings.
-          </span>
+          @if (isExpanded('adaptation')) {
+            <span matListItemLine class="mat-body-2">
+              If your preferences differ from your original ratings, the algorithm will adjust, but may need 
+              a few extra comparisons to override the initial ratings.
+            </span>
+          }
         </mat-list-item>
         <mat-divider></mat-divider>
-        <mat-list-item>
-          <mat-icon matListItemIcon>arrow_right</mat-icon>
+        <mat-list-item (click)="toggleItem('bestFor')" class="expandable-item">
+          <mat-icon matListItemIcon>{{ isExpanded('bestFor') ? 'expand_more' : 'chevron_right' }}</mat-icon>
           <span matListItemTitle>Best For</span>
-          <span matListItemLine class="mat-body-2">
-            Lists where your existing ratings are generally accurate and reflect your current preferences.
-          </span>
+          @if (isExpanded('bestFor')) {
+            <span matListItemLine class="mat-body-2">
+              Lists where your existing ratings are generally accurate and reflect your current preferences.
+            </span>
+          }
         </mat-list-item>
       </mat-list>
     </mat-card-content>

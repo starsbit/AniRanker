@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy, inject } from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject, signal } from '@angular/core';
 import { MatDialogModule, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -31,9 +31,27 @@ export class UseRatingsDialogComponent {
   private dialogRef = inject(MatDialogRef<UseRatingsDialogComponent>);
   data = inject<UseRatingsDialogData>(MAT_DIALOG_DATA);
 
+  expandedItems = signal<Set<string>>(new Set());
+
   getSavingsPercent(): number {
     const savings = this.data.normalComparisons - this.data.reducedComparisons;
     return Math.round((savings / this.data.normalComparisons) * 100);
+  }
+
+  toggleItem(itemKey: string): void {
+    this.expandedItems.update(items => {
+      const newSet = new Set(items);
+      if (newSet.has(itemKey)) {
+        newSet.delete(itemKey);
+      } else {
+        newSet.add(itemKey);
+      }
+      return newSet;
+    });
+  }
+
+  isExpanded(itemKey: string): boolean {
+    return this.expandedItems().has(itemKey);
   }
 
   onYes(): void {

@@ -71,6 +71,24 @@ mat-card-avatar mat-icon {
   flex: 1;
 }
 
+.expandable-item {
+  cursor: pointer;
+  user-select: none;
+  height: auto !important;
+  
+  &:hover {
+    background-color: var(--mat-sys-surface-container-high);
+  }
+
+  span[matListItemLine] {
+    white-space: normal !important;
+    overflow: visible !important;
+    text-overflow: unset !important;
+    line-height: 1.5;
+    padding: 8px 0;
+  }
+}
+
 mat-divider {
   margin: 16px 0;
 }
