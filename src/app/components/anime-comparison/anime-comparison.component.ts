@@ -30,6 +30,7 @@ export class AnimeComparisonComponent {
   undoRequested = output<void>();
   redoRequested = output<void>();
   exportRequested = output<void>();
+  exportCsvRequested = output<void>();
 
   mediaType = computed(() => this.leftAnime().type);
 
@@ -59,5 +60,9 @@ export class AnimeComparisonComponent {
 
   exportResults(): void {
     this.exportRequested.emit();
+  }
+
+  exportCsv(): void {
+    this.exportCsvRequested.emit();
   }
 }

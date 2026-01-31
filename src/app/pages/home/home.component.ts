@@ -328,6 +328,50 @@ export class HomeComponent implements OnInit {
     });
   }
 
+  onExportCsv(displayedAnime: Anime[]): void {
+    const listType = this.listType();
+    const csv = this.generateCsv(displayedAnime);
+
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    const filename = listType === 'manga' ? 'mangalist_ranked.csv' : 'animelist_ranked.csv';
+    link.download = filename;
+    link.click();
+    URL.revokeObjectURL(url);
+
+    this.snackBar.open('Ranking exported to CSV successfully!', 'Close', {
+      duration: 3000
+    });
+  }
+
+  private generateCsv(animeList: Anime[]): string {
+    const listType = this.listType();
+    
+    // CSV header
+    const headers = ['Title', 'Rating', 'MAL Link'];
+    
+    // CSV rows
+    const rows = animeList.map((anime) => {
+      const title = this.escapeCsvValue(anime.title);
+      const rating = anime.rating ? anime.rating.toFixed(1) : 'N/A';
+      const malLink = `https://myanimelist.net/${listType}/${anime.id}`;
+      
+      return [title, rating, malLink].join(',');
+    });
+    
+    return [headers.join(','), ...rows].join('\n');
+  }
+
+  private escapeCsvValue(value: string): string {
+    // Escape CSV values that contain commas, quotes, or newlines
+    if (value.includes(',') || value.includes('"') || value.includes('\n')) {
+      return `"${value.replace(/"/g, '""')}"`;
+    }
+    return value;
+  }
+
   onReset(): void {
     this.ranking.reset();
     this.jikan.clearCache();
