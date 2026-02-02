@@ -1,4 +1,5 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable, inject, PLATFORM_ID } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { Meta, Title } from '@angular/platform-browser';
 import { Router, NavigationEnd } from '@angular/router';
 import { filter } from 'rxjs/operators';
@@ -19,6 +20,8 @@ export class MetaService {
   private readonly meta = inject(Meta);
   private readonly titleService = inject(Title);
   private readonly router = inject(Router);
+  private readonly platformId = inject(PLATFORM_ID);
+  private readonly isBrowser = isPlatformBrowser(this.platformId);
 
   private readonly defaultConfig: MetaConfig = {
     title: 'AniRanker - Rank your anime and manga lists',
@@ -30,7 +33,9 @@ export class MetaService {
   };
 
   constructor() {
-    this.initializeRouteListener();
+    if (this.isBrowser) {
+      this.initializeRouteListener();
+    }
   }
 
   private initializeRouteListener(): void {
