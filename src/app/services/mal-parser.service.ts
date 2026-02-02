@@ -93,6 +93,12 @@ export class MalParserService {
           if (scoreNode) {
             scoreNode.textContent = Math.round(rankedEntry.rating).toString();
           }
+
+          // Set update_on_import to 1 so MyAnimeList will apply the new rating
+          const updateNode = node.querySelector('update_on_import');
+          if (updateNode) {
+            updateNode.textContent = '1';
+          }
         }
       });
     } else {
@@ -105,6 +111,12 @@ export class MalParserService {
           const scoreNode = node.querySelector('my_score');
           if (scoreNode) {
             scoreNode.textContent = Math.round(rankedEntry.rating).toString();
+          }
+
+          // Set update_on_import to 1 so MyAnimeList will apply the new rating
+          const updateNode = node.querySelector('update_on_import');
+          if (updateNode) {
+            updateNode.textContent = '1';
           }
         }
       });
