@@ -1,0 +1,10 @@
+# Allow all search engines to crawl the site
+User-agent: *
+Allow: /
+
+# Sitemap location
+Sitemap: https://aniranker.starsbit.space/sitemap.xml
+
+# Optional: Block specific paths if needed in the future
+# Disallow: /admin/
+# Disallow: /private/
