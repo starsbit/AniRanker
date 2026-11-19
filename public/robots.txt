@@ -3,7 +3,7 @@ User-agent: *
 Allow: /
 
 # Sitemap location
-Sitemap: https://aniranker.starsbit.space/sitemap.xml
+Sitemap: https://aniranker.starsbit.moe/sitemap.xml
 
 # Optional: Block specific paths if needed in the future
 # Disallow: /admin/

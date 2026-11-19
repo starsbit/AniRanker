@@ -27,8 +27,8 @@ export class MetaService {
     title: 'AniRanker - Rank your anime and manga lists',
     description: 'Rank your anime and manga lists using pairwise comparisons. Import your MyAnimeList and create personalized rankings.',
     keywords: 'anime, manga, ranking, MyAnimeList, anime ranking, manga ranking, anime comparison',
-    image: 'https://aniranker.starsbit.space/assets/images/og-image.png',
-    url: 'https://aniranker.starsbit.space',
+    image: 'https://aniranker.starsbit.moe/assets/images/og-image.png',
+    url: 'https://aniranker.starsbit.moe',
     type: 'website'
   };
 
@@ -57,7 +57,7 @@ export class MetaService {
 
   updateMetaTags(config: Partial<MetaConfig>): void {
     const metaConfig = { ...this.defaultConfig, ...config };
-    const url = metaConfig.url || `https://aniranker.starsbit.space${this.router.url}`;
+    const url = metaConfig.url || `https://aniranker.starsbit.moe${this.router.url}`;
 
     // Update title
     this.titleService.setTitle(metaConfig.title);

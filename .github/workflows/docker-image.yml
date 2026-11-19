@@ -1,0 +1,22 @@
+# Builds the production image so a broken build never reaches main. The homelab cluster deploys a main
+# commit only after this check passes (pull-based autobuild on the shipyard k3s VM).
+name: docker-image
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  docker-image:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build production image
+        run: docker build -t aniranker:ci .
+      - name: Smoke test
+        run: |
+          docker run -d --name aniranker -p 8080:8080 aniranker:ci
+          for i in $(seq 1 20); do curl -fs http://localhost:8080/healthz && break; sleep 1; done
+          for p in / /about /contact /robots.txt /sitemap.xml; do
+            curl -fs -o /dev/null "http://localhost:8080$p" || { echo "GET $p failed"; docker logs aniranker; exit 1; }
+          done
